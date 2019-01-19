@@ -73,11 +73,22 @@ Localization Challenges
  ![alt text][image1]
  
  
-  # Background 
+  # Background  
   
-  Application 
+  - Used in the Apollo program 
   
-  Variations 
+  # Applications
+  - used to estimate the state of the system when the measurements are noisey
+    - Position tracking for a mobile robot
+    - Feature tracking 
+    
+  # Variations 
+  
+  KF - applied to linear systems
+  
+  EKF - applied to nonlinear system 
+  
+  UKF - highly nonlinear - http://ais.informatik.uni-freiburg.de/teaching/ws12/mapping/pdf/slam05-ukf.pdf
   
   Robot Uncertainty 
  

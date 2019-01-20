@@ -18,13 +18,25 @@
 [image16]: ./images/graph1.png
 [image17]: ./images/correlation_vel_pos.png
 [image18]: ./images/posterir_belief.png
-[image19]: ./images/
-[image20]: ./images/
-[image21]: ./images/
-[image22]: ./images/
-
-
-
+[image19]: ./images/linear_trans.png
+[image20]: ./images/nonlin_trans.png
+[image21]: ./images/approximated.png
+[image22]: ./images/Taylor_series.png
+[image23]: ./images/first2terms.png
+[image24]: ./images/summary.png
+[image25]: ./images/multidimen_TS.png
+[image26]: ./images/1st2.png 
+[image27]: ./images/jacobian.png
+[image28]: ./images/expanded_jacobian.png
+[image29]: ./images/meas_function.png
+[image30]: ./images/polar_cart.png
+[image31]: ./images/hofxprime.png 
+[image32]: ./images/ts_hofx.png 
+[image33]: ./images/H.png
+[image34]: ./images/compute_jacobian.png
+[image35]: ./images/ekf_equations.png
+[image36]: ./images/summary1.png
+[image37]: ./imsges/drone.pmg
 
 The position tracking problem is easier to solve than the global localization one.
 
@@ -782,17 +794,199 @@ int main()
 
 # START HERE AND FINISH ATER PROJECT!
 
-  Extended Kalman Filter 
+  # Extended Kalman Filter
   
-  EKF Example 
+  Kalman assumptions 
+  ---
+  * Motion and measurement models are linear
+  * State space can be represebted by a unimodal Gaussian distribution
   
-  Limitations 
+  These assumptions only work for a primitive robot. Not ones that are non-linear and can move in a circle or follow a curve. 
   
-  Extended Kalman Filter 
+  Why can't we use Kalman in non-linear robotics? 
+  
+  Given a unimodal Gaussian distribution with a mean = (mu) and a variance = (sigma2)
+  
+  When the distribution undergoes linear transformation (y = mx + b) the posterior distribution is a Gaussian with
+  
+  1. mean = a x (mu) + b
+  2. Variance = a2(sigma2)
+  
+  This is what can happen in a state prediction .
+  
+  NOTE: A linear transformation that takes in a Gaussian for an input will have a Gaussian for an ouput
+  
+  ![alt text][image19]
+  
+  
+  QUESTION
+  --
+  What happens if the transformation is nonlinear? 
+  
+  As before the prior belief is a unimodal gaussian distributiion with 
+  
+  mean = mu 
+  variance = sigma2 
+  
+  Now the function is nonlinear
+  
+  f(x) = atan(x) 
+  
+  The resulting graph is not a Gaussian distribution 
+  
+  ![alt text][image20] 
+  
+  The distribution cannot be computer in closed form i.e with in a finite number of operations. To model this distribution, thousands of samples must be collected according to the prior distribution and passed through the function f(x) 
+  
+  Doing this will make the filter more computationally intensive which is not what the filter is designed for. 
+  
+  If we examine the graph of f(x) more closesly we see that for very short intervals, the function may be approximated by a linear function. 
+  
+  ![alt text][image21]
+  
+  The linear estimate is only valid for a small section of the function but if its centered on the best estimate (the mean) and updated with every step, it can produce great results. 
+  
+  * The mean can be updated by the nonlinear function-->  f(x) 
+  * The covariance must be updated by the linearization of the function f(x)
+  
+  
+  To calculate he local linear approximation, use the Taylor series. 
+  
+  Taylor series - a function can be represented by the sum of an infinite number of terms as represented by the following formula 
+  
+  ![alt text][image22]
+  
+  An approximation can be obtained by using just a few terms. 
+  
+  A linear approximation can be obtained by using the first two terms of the Taylor series 
+  
+ ![alt text][image23] 
+ 
+ This linear approximation is center around the mean and used to update the covariance matrix of the prior state Gaussian. 
+ 
+ EKF vs KF
+ --
+ 
+ 1. EKF
+ 
+ either the state transformation function, measurement function or both are nonlinear. These nonlinear functions update the mean but not the variance 
+ 
+ Locally linear approximations are calculate and used to update the variance
+ 
+ Summary
+ ---
+ ![alt text][image24]
+  
+  Multi-dimensional Extended Kalman Filter
+  ---
+   
+  When implementing the Extended Kalman Filter, non-linear motion or measurement functions need to be linearized to be able to update the variance
+  
+  To do the for multiple dimensions, we use a multi-dimensional Taylor Series: 
+  
+  ![alt text][image25]
+  
+  Just like in the 1-Dimensional Taylor series, we only need the first 2 terms: 
+  
+  ![alt text][image26]
+  
+  The new term, *Df(a) is the Jacobian matrix and it holds the partial derivative terms for the multi-dimensiona equation
+  
+  ![alt text][image27]
+  
+  The Jacobian is a matrix of partial derivative that tell us how each of the components of *f changes as we change the components of the state vector. 
+  
+  ![alt text][image28]
+  
+  The rows correspond to the dimension of the function, f
+  The columns relate to the dimension (state variable) of x
+  
+  The first element of the matrix is the first dimensionn of the function derived with respect to the first dimension of x. 
+  
+  The Jacobian is a generalization of the 1D case. In the 1D case, the Jacobian would only have the term df/dx.
+  
+  Example
+  ---
+  
+  We are tracking the x-y coordinate of an object. The state vecto is x, with the state variable x and y 
+  
+  x = [x; y;]
+  
+  Our sensors does not allow us to measure the x and y ccoordinate of the object directly. Our sensor measures the distance from the robot to the object, r, as well as the angle between r and the x-axis, theta.
+  
+  z = [r; theta]
+  
+  
+  Our state is in Cartesian representation 
+  
+  Our measurement is in the polar representation 
+  
+  The measurement function maps the state to the observation, as so, 
+  
+  ![alt text][image29]
+  
+  NOTE: Our measurement function must map from Cartesian to Polar coordinates. 
+  
+  The relationship between Cartesian and polar coordinates is nonlinear, therefore there is no matrix, H, that will successflly make this conversion. 
+  
+  ![alt text][image30]
+  
+  Instead of using the measurement residual equation y  =  - Hxprime , the mapping must be made with a dedication function, h(x').
+  
+  ![alt text][image31] 
+  
+ 
+ The measurement residual equation becomes y = z - h(x')
+ 
+ Our measurement covariance matrix cannot be updated the same way because it would turn into a non-Gaussian distribution. 
+ 
+ Now we calculate a linearization, H and use it instead
+ 
+ The Taylor series for the function h(x), centered about the mean mu is defined. 
+ 
+![alt text][image32]
+
+
+The Jacobian, Df(mu), is defined below. We'll call it H since it is the linearization of measurement function, h(x)
+
+![alt text][image33]
+
+Computing each of the partial derivates, would result in the following matrix 
+
+![alt text][image34]
+
+This matrix, H, can be used to update the state's covariance.
+
+Extended Kalman Filter Equation
+
+![alt text][image35]
+
+Summary
+--
+
+![alt text][image36]
+
+
   
   
   
   
+  # EKF Example 
+  
+  A quadrotor with motion contsrained to the y-axis:
+  
+  State Vector
+  
+  x = [phi; ydot; y]
+  
+  phi = roll angle 
+  ydot = velocity
+  y = position 
+  
+  The quadrotor below is equipped with a ranger finder, so it to knoes the distance between it and the wall. 
+  
+  
+  1[alt text][image37]
   
   
   

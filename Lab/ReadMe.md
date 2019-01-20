@@ -90,7 +90,17 @@ $ apt-get upgrade - y
 
 ```
 
-Turtlebot Gazebo Package 
+
+
+# Turtlebot Gazebo Package 
+
+Used by roboticists to perform localization, mapping and path planning 
+
+In this lab we will be using turtlebot 2 in a gazebo environment and estimate its pose. 
+
+Go through documentation and identify nodes and topics 
+
+
 
 Robot Pose EKF Package
 

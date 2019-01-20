@@ -1,7 +1,7 @@
 # Localization
 
 [image1]: ./images/filter_example.png
-[image2]: .images/bellCurve.png
+[image2]: ./images/bellCurve.png
 [image3]: ./images/probvdist.png
 [image4]: ./images/2steps.png
 [image5]: ./images/newbelief.png

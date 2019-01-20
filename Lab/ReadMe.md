@@ -73,7 +73,7 @@ The Extended Kalman Filter will take all the noisy measurements, compare them, f
 
 Create a catkin_ws to hold various ROS packages
 
-```` unix
+```` shell
 $ mkdir -p /home/workspace/catkin_ws/src
 $ cd /home/workspace/catkin_ws/src
 $ catkin_init_workspace
@@ -83,7 +83,7 @@ $ catkin_make
 ````
 Perform system update/upgrade
 
-```unix
+```shell
 
 $ apt-get update
 $ apt-get upgrade - y

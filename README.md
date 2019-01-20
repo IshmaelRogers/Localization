@@ -36,7 +36,13 @@
 [image34]: ./images/compute_jacobian.png
 [image35]: ./images/ekf_equations.png
 [image36]: ./images/summary1.png
-[image37]: ./imsges/drone.pmg
+[image37]: ./images/drone.pmg
+[image38]: ./images/perp.png
+[image39]: ./images/Jacobian_quad.png
+[image40]: ./images/partials.png
+[image41]: ./images/calculated_H.png
+[image42]: ./images/ekf_eqs.png
+[image43]: ./images/
 
 The position tracking problem is easier to solve than the global localization one.
 
@@ -989,7 +995,43 @@ Summary
   1[alt text][image37]
   
   
+  In the current configuration the expected measurement to the wall would be 
   
+  * h(x) = wall - y
+  
+  Now consider what would happen if the quadrotor were to roll to some angle phi:
+  
+  ![alt text][image38]
+  
+  The equation for the measurement when the quadrotor has roll angle of phi is derived from basic trignonometry
+  
+  
+  h(x) = (wall -  y) / cos(phi)
+  
+  NOTE: The cosine in the denominator makes this function non-linear. Therefore an Extended Kalman Filter is needed to estimate and linearize the function. 
+  
+  Calculating H
+  ---
+  
+  To apply the Extended Kalman Filter, we need to calculate H, the Jacobian of the measurement model defined above. 
+  
+  ![alt text][image39] 
+  
+  
+  Calculating the three partial derivatives will result in the following 
+  
+  ![alt text][image40]
+  
+  
+  After calculating H:
+  
+  ![alt text][image41]
+  
+  Now H can be used in the Extended Kalman Filter equations to update the covariance of the state. 
+  
+  Equations: 
+  
+  ![alt text][image42]
   
   # Lab: Kalman Filter 
   

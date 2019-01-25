@@ -43,30 +43,64 @@
 [image41]: ./images/calculated_H.png
 [image42]: ./images/ekf_eqs.png
 [image43]: ./images/
-
-The position tracking problem is easier to solve than the global localization one.
-
-The kidnapped robot problem, the robot is teleported to a different location. 
-
-In global localization, the robot's initial pose is unknown. 
+[link1]: https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373 
 
 
 
-The challenge of determining the robot's *pose in a mapped environment implements a probablisitics algorithm to filter out noisey sensor measurements. 
 
-Pose - is the robot's (x,y) coordinates + the orientation (theta) relative to a known start point.  
+# Introduction
+
+Localization is the challenge of determining the robot's *pose* in a mapped environment. It implements a probablistic algorithm to filter out noisey sensor measurements. It is considered a key problem in mobile robotics and is the most fundamental problem solving when provideing mobile robots with autonomous capabilities.  
+
+Pose - is the robot's (x,y) coordinates + the orientation (theta) relative to a known start point. Usual represented as a 3x1 vector as shown below.
+
+[x, y, theta]' 
+
+
+There are 3 localization problems that range simple to most difficult, depending on the the deired goal. 
+
+1. Position tracking
+In this problem the initial robot pose is known, the challenge is to compensate for incremental errors in the robot's odometry. The algorithms used for position tracking often make restrictive assumptions about the size of the error and the shape of the robot's unvertainity.    
+2. Global localization problem
+ In this problem, a robot is not told its initial pose but instead, it must to determine it on its on. Unlike the position tracking problem, the error in the robot's estimate cannot be assumed to be small.
+3. Kidnapped robot problem
+This is the most difficult localization problem to solve. As the name suggests, the problem occurs when the robot is removed from one position on the map to another random position on the map. We make efforts to solve this problem because it can provide our system with a way to recover from localization failures and miscalculations.
+
+Tools
+---
+ 
+ * Kalman filters 
+ Kalman filters are best used to solve  *position tracking* where the nature of small, incremental errors are exploited. It estimates *posterior distributions* of robot poses that are conditioned on sensor data. 
+ 
+ Kalman Filter Assumptions (restrictive)
+ 1. Gaussian-distributed noise
+ 2. Gaussian-distributed intitial uncertainty
+ 
+ Kalman filters offer an elegant and efficient algorithm for localization, but the restrictions on the belief representation makes plain Kalman filters unable to handle global localization problems.
+ 
+ 2 families of algorithms help us overcome this limitation:
+ 
+ 1. Multi-hypohesis Kalman filter
+  This algorithms uses a mixture of Gaussians to represent beliefs. This enables the the system to pursue multiple disticnt hypotheses, each of which is represented by a separate Gaussian. In this approach, the Gaussian noise assumption is inherited from Kalman Filters. In general, all pratical implementations of this algorithm extract low-dimensional features from the sensor data, therby ignoring much of the information acquired by a robot's sensors. 
+ 2. Markov localization 
+ This form of loxcalization represents beliefs by piece-wise constant function (i.e histograms) over the space space of all possible poses. Piece-wise constant functions are capable of representign complex multi-modal representations. 
+ 
+To summarize the different types of localization algorithms, we breifly revisit the each localization problem:
+
+* The position tracking problem is much easier to solve than the global localization one, because the estimate of the robot's error is assumed to be small. Furthermore, in the global localization problem the robot is completely unware of its pose and must estimate it with a technique called *sensor fusion*
+
+* The kidnapped robot problem is useful when designing a robot that can recover from localization malfunctions and miscalculations. These are events that are likely to occur in dynamic environments where predictablity is limited. 
 
 Starting with a known map of the environment, and a sensor susceptible to sensor noise like lidar or ultrasonics, the robot will start off with guesses (probablities) about where it is relative to the start point. Over time the robots should narrow down on a precise location. 
 
+More Localization algorithms
+----
 
-Localization algorithms 
-
-* Extended Kalman Filter - The most commonly used estimates the state of non linear models
+* Extended Kalman Filter - The most commonly used estimates the state of non linear models.
 
 * Markov - a base filter localization, that maintains a probablitlity distribution over the set of possible poses (i.e position and orientation values of the robot.)
 
-* Gird - histogram hilter estimates the pose uses grid https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373 j
-
+* Gird - histogram filter that estimates the pose of a robot using grid. See Udacity's Free Course in Artificial Intelligence for Robotics ![click here][link1] 
 * Monte Carlo - particle filter
 
 Localization Challenges

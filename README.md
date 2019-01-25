@@ -43,7 +43,7 @@
 [image41]: ./images/calculated_H.png
 [image42]: ./images/ekf_eqs.png
 [image43]: ./images/
-[link1]: https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373 
+[link1]: ./https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373 
 
 
 

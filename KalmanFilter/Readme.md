@@ -1,58 +1,101 @@
 # Ishmael Rogers
 # Robotics Software Engineer
 # Infinitely Deep Robotics Group, LLC
-# Kalkman Filters
+# 2019
+
+[image1]: ./images/filter_example.png
+[image2]: ./images/bellCurve.png
+[image3]: ./images/probvdist.png
+[image4]: ./images/2steps.png
+[image5]: ./images/newbelief.png
+[image6]: ./images/newmean.png
+[image7]: ./images/posterior.png
+[image8]: ./images/posterior2.png
+[image9]: ./images/sp_mu.png
+[image10]: ./images/2dGaus.png
+[image11]: ./images/2d_gauss_alternate.png
+[image12]: ./images/correlated.png
+[image13]: ./images/mVG_equation.png
+[image14]: ./images/formulas_4MVG.png
+[image15]: ./images/state_est.png 
+[image16]: ./images/graph1.png
+[image17]: ./images/correlation_vel_pos.png
+[image18]: ./images/posterir_belief.png
+[image19]: ./images/linear_trans.png
+[image20]: ./images/nonlin_trans.png
+[image21]: ./images/approximated.png
+[image22]: ./images/Taylor_series.png
+[image23]: ./images/first2terms.png
+[image24]: ./images/summary.png
+[image25]: ./images/multidimen_TS.png
+[image26]: ./images/1st2.png 
+[image27]: ./images/jacobian.png
+[image28]: ./images/expanded_jacobian.png
+[image29]: ./images/meas_function.png
+[image30]: ./images/polar_cart.png
+[image31]: ./images/hofxprime.png 
+[image32]: ./images/ts_hofx.png 
+[image33]: ./images/H.png
+[image34]: ./images/compute_jacobian.png
+[image35]: ./images/ekf_equations.png
+[image36]: ./images/summary1.png
+[image37]: ./images/drone.pmg
+[image38]: ./images/perp.png
+[image39]: ./images/Jacobian_quad.png
+[image40]: ./images/partials.png
+[image41]: ./images/calculated_H.png
+[image42]: ./images/ekf_eqs.png
+[image43]: ./images/
+[link1]: ./https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373
 
 # Kalman Filters
- 
- - an estimation algorithm that is used widely in controls. estimables the value of a variable in real time as the variable is being collected. 
- 
- It can take data with a lot of uncertainty or noise in the measurements and provide an accurate estimate of the real value; very quickly. 
- 
- Example: Underwater Robotics
- ---
- 
- Monitoring the pressure as the systems swims through the water.
- 
- Problems: 
- 
- * The pressure measurements are not perfectly accurate 
- * electical noise from the sensor 
- 
- Solution: 
- 
- When the pressure sensor starts collecting data, the Kalman filter begins to narrow in and estimates the actual pressure. In addition to the sensor readings, the Kalman filter accounts for the uncertainity of the sensor readings.
- 
- 
- What happens every time a measurement is recorded? 
- 
- Kalman filter is an iteration of the following to steps: 
- 
- * Measurement update 
- 
- * State prediction 
- 
- ![alt text][image1]
- 
- 
-  # Background  
+ ### Background
+The Kalman filter is an estimation algorithm that is used widely in controls. It works by estimating the value of a variable in real time as the variable is being collected by a sensor. This variable can be position or velocity of the robot. The Kalman Filter can take data with a lot of uncertainty or noise in the measurements and provide an accurate estimate of the real value; very quickly 
   
-  - Used in the Apollo program 
+  ### Applications
+
+This algorithm is used to estimate the state of the system when the measurements are noisey
   
-  # Applications
-  - used to estimate the state of the system when the measurements are noisey
     - Position tracking for a mobile robot
     - Feature tracking 
     
   # Variations 
   
-  KF - applied to linear systems
+  Kalman Filter - applied to linear systems
   
-  EKF - applied to nonlinear system 
+  Extended Kalman Filter - applied to nonlinear system 
   
   UKF - highly nonlinear - http://ais.informatik.uni-freiburg.de/teaching/ws12/mapping/pdf/slam05-ukf.pdf
-  
+ 
+ Example: Underwater Robotics
+ ---
+ 
+ Consider an Underwater robot equiped with a barometer for monitoring the pressure as the robot swims through the water. 
+ 
+ Problems: 
+ 
+ * The pressure measurements from the barometer are not perfectly accurate 
+ * Electrcial noise from the sensor introduces more errors into the measurement. 
+ 
+ Solution: 
+ 
+ When the pressure sensor starts collecting data, the Kalman filter begins to narrow in and estimates the actual pressure. In addition to the sensor readings, the Kalman filter accounts for the uncertainity of the sensor readings which are specific to the type of sensor being used and the environment it is being used in. 
+ 
+ The process
+ ---
+ 
+ What happens every time a measurement is recorded? 
+ 
+ Kalman filter is an iteration of the following 2 steps: 
+ 
+ 1. Measurement update 
+ 
+ 2. State prediction 
+ 
+ ![alt text][image1]
+ 
   Robot Uncertainty 
+  ---
   
   Ideal vs Real world
   
@@ -88,35 +131,32 @@
    Advantage
    ---
    
-   Movement and Sensory measurements are uncertain, the kalman filter take in account the uncertainity of each sensor's measurement to help the robot better sense its own state. This estimatation happens only after a few sensor measurements. 
+   Movement and Sensory measurements are uncertain, the Kalman Filter takes in account the uncertainity of each sensor's measurement to help the robot better sense its own state. This estimatation happens only after a few sensor measurements. 
    
-   To do this:
    
+   STEPS
+   ---
    Use an intitial guess and take in account of expected uncertainity 
    
    Sensor Fusion - uses the kalman filter to calculate an accurate estimate using data from multiple sensor. 
    
  
   # 1D Gaussian
-   At the basis of the Kalman Filter is the Gaussian distribution also known as a bell curve. Imagine Hexpod Zero was commanded to execute 1 motion, the rover's location can be representedd as a Gaussian. 
-   
-   The exact location is not certain but the level of uncertainity was bound. 
+  
+   At the basis of the Kalman Filter is the Gaussian distribution also known as a bell curve. Imagine Hexpod Zero was commanded to execute 1 motion, the systems final location can be representedd as a Gaussian. Although the exact location is not certain, the level of uncertainity is bounded. 
    
    The role of a Kalman Filter
    ---
    
-   after a movement or a measurement update, it output a unimodal Gaussian distribution. 
-   NOTE: This is its best guess at the true value of a parameter
+   After a movement command or a measurement update, the KF outputs a unimodal Gaussian distribution. This is considered its best guess at the true value of a parameter
    
-   
-   A Gaussian distribution is a probability distribution which is a continous function. 
-   
+  NOTE: A Gaussian distribution is a probability distribution which is a continous function. 
    
    Claim:
    
    The probability that a random variable, x, will take a value between x1 and x2 is given by the integral of the function from x1 to x2. 
    
-   (p x1 < x < x2) = x2 integral x1 fx(x)dx
+   p(x1 < x < x2) = x2 integral x1 fx(x)dx
    
    In the image below, the probability of the rover being located between 8.7m and 9m is 7%
    
@@ -126,12 +166,12 @@
    Mean and variance
    ---
    
-   A gaussian is charactterized by two parameters 
+   A gaussian is characterized by two parameters 
    
-   mean (mue) - the most probable occurrence. 
-   variance (sigma^2) - the width of the curve, 
+   mean (mue) - represents the most probable occurrence. 
+   variance (sigma^2) - represents the width of the curve 
    
-   *Unimodal - implies a single peak present in the distribution.
+   NOTE: Unimodal - implies a single peak present in the distribution.
    
    Gaussian distributions are frequently abbreviated as:
    
@@ -142,15 +182,13 @@
    
    <a href="https://www.codecogs.com/eqnedit.php?latex=p(x)&space;=&space;\frac{e^{\frac{-(x-\mu&space;)^{2}}{2\sigma&space;^{2}}}}{\sigma&space;\sqrt{2\pi&space;}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?p(x)&space;=&space;\frac{e^{\frac{-(x-\mu&space;)^{2}}{2\sigma&space;^{2}}}}{\sigma&space;\sqrt{2\pi&space;}}" title="p(x) = \frac{e^{\frac{-(x-\mu )^{2}}{2\sigma ^{2}}}}{\sigma \sqrt{2\pi }}" /></a>
    
-   NOTE: Exponential of a quadratic function. The quadratice compares the value of x to (mue). In the case that x=mue the exponential is equal to 1 (e^0 = 1). 
+   NOTE: This formual contains an exponential of a quadratic function. The quadratic compares the value of x to (mue). In the case that x=mue the exponential is equal to 1 (e^0 = 1). 
    
    NOTE:The constant in front of the exponential is a necessary normalizing factor. 
    
    In discrete proababiity, the probabilities of all the options must sum to one. 
    
-   The area underneath the function always suns to one 
-   
-   integral p(x)dx = 1
+   The area underneath the function always suns to one i.e (integral) p(x)dx = 1
    
    Coding the 1D Gaussian in C++
 ---
@@ -178,15 +216,14 @@ return 0;
 
 ```
    What is represented by a Gaussian distribution?
+   ---
    
    * Predicted Motion
    * Sensor Measurement 
    * Estimated State of Robot
    
    
-   Kalman Filters treat all noise as unimodal Gaussian. This is not the case in reality. 
-   
-   The algorithm is optimal if the noise is Gaussian. 
+   Kalman Filters treat all noise as unimodal Gaussian. This is not the case in reality. The algorithm is optimal if the noise is Gaussian. 
    
    NOTE: Optimal means that the algorithm minimizes the mean square error of the estimated parameters. 
    
@@ -196,20 +233,20 @@ return 0;
    Naming conventions
    ---
    
-   Since a robot is unable to sense the world around it with complete certainity it holds an internal belief
+   Since a robot is unable to sense the world around it with complete certainity it holds an internal belief *Bel( )*
    
-   A robot constrained to a plane can be identified with 3 state variables 
+   A robot constrained to a plane can be identified with *3 state variables*
    
-   *state: x*
-   *measurement: z*
-   *control action: u*
+   **state: x**
+   **measurement: z**
+   **control action: u**
    
    
   1. Measurement update 
   
   Sensors provide values called meaurements denoted z_t, where t respresents the time that measurement was taken.
   
-  Control actions change the state of the system.
+  2. Control actions are used to change the state of the system, x.
   
  2. State Prediction 
   
@@ -217,10 +254,13 @@ return 0;
   
   ![alt text][image4]
   
-  Starting the Kalman cycle with an initial estimate of the state. 
   
-  Measurement update: gain knowledge
-  State prediction: lose knowledge due to uncertaintity of robot motion
+  The Kalman cycle starts with an initial estimate of the state. From there the 2 iterative steps describe above are carried out. 
+  
+  1. Measurement update: where the robot uses sensors to gain knowledge about its environment.
+  2. State prediction: the robot loses knowledge due to uncertaintity of robot motion.
+  
+  Below we explore these 2 steps in much greater detail. 
   
  # Measurement update 
  
@@ -229,9 +269,10 @@ return 0;
  
  We'll start the Kalman filter implementation with the measurement update 
  
- 1D Robot Example: 
+ 1D Robot Example:
+ ---
  
- A roaming robot. 
+ A roaming mobile robot. 
  
  The robot is thinks its current position is near 20- m mark, but it is not very certain. There the Gaussian of the PRIOR BELIF N(x:mu=20, sig2=9) has a wide probability distribution. 
  

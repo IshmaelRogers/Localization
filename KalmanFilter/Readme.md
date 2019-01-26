@@ -441,9 +441,9 @@ int main()
   
   # Multivariate Gaussian 
   
-  Most robots models are moving in more than one dimension i.e a robot on a plane would have an x & y position. 
-  
-  We can't use multiple 1-D Gaussians to represent multi-dimensional systems because there may be correlations between dimensions that we would not be able to model by using independent 1-dimensional Gaussians. 
+So far we've looked at 1-D Gaussian distributions which are useful for representing a robots internal belief about its state. We implemented this idea in a 1-D Kalman filter which is a 2 step iterative process. The 1-D robot started out with an inital estimate of its state and then initiated a motion command, *u*. The robot then calculated a new Gaussian distribution that was more certain than the previous two (the initial estimate, and the motion command). This calulation is passed to the state prediction step as the *prior belief*. We used this 1D model to illustrate the most simple case.
+
+In the real world most robots models are moving in multiple dimensions; for example a robot on a plane would have an x & y coordinates to identify its position. It would be conveient if we could use multiple 1-D Gaussians to represent multi-dimensional systems. However we can't because there may be correlations between dimensions that we would not be able to model by using independent 1-D Gaussians. 
   
   2-D Gaissian Distribution
   ![alt text][image10]

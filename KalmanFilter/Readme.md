@@ -3,7 +3,7 @@
 # Infinitely Deep Robotics Group, LLC
 # 2019
 
-[image1]: .images/filter_example.png
+[image1]: ./images/filter_example.png
 [image2]: ./images/bellCurve.png
 [image3]: ./images/probvdist.png
 [image4]: ./images/2steps.png

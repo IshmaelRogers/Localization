@@ -77,6 +77,7 @@ This algorithm is used to estimate the state of the system when the measurements
  * The pressure measurements from the barometer are not perfectly accurate 
  * Electrcial noise from the sensor introduces more errors into the measurement. 
  
+ 
  Solution: 
  
  When the pressure sensor starts collecting data, the Kalman filter begins to narrow in and estimates the actual pressure. In addition to the sensor readings, the Kalman filter accounts for the uncertainity of the sensor readings which are specific to the type of sensor being used and the environment it is being used in. 

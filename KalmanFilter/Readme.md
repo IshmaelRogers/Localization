@@ -49,6 +49,7 @@
 [link1]: ./https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373
 
 # Kalman Filters
+
  ### Background
 The Kalman filter is an estimation algorithm that is used widely in controls. It works by estimating the value of a variable in real time as the variable is being collected by a sensor. This variable can be position or velocity of the robot. The Kalman Filter can take data with a lot of uncertainty or noise in the measurements and provide an accurate estimate of the real value; very quickly 
   
@@ -56,8 +57,8 @@ The Kalman filter is an estimation algorithm that is used widely in controls. It
 
 This algorithm is used to estimate the state of the system when the measurements are noisey
   
-    - Position tracking for a mobile robot
-    - Feature tracking 
+   * Position tracking for a mobile robot
+   * Feature tracking 
     
   # Variations 
   

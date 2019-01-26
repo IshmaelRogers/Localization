@@ -51,16 +51,14 @@
 # Kalman Filters
 
  ### Background
-The Kalman filter is an estimation algorithm that is used widely in controls. It works by estimating the value of a variable in real time as the variable is being collected by a sensor. This variable can be position or velocity of the robot. The Kalman Filter can take data with a lot of uncertainty or noise in the measurements and provide an accurate estimate of the real value; very quickly 
+The Kalman filter is an estimation algorithm that is used widely in controls. It works by estimating the value of a variable in real time as the variable is being collected by a sensor. This variable can be position or velocity of the robot. The Kalman Filter can take data with a lot of uncertainty or noise in the measurements and provide an accurate estimate of the real value very quickly 
   
   ### Applications
-
-This algorithm is used to estimate the state of the system when the measurements are noisey
   
    * Position tracking for a mobile robot
    * Feature tracking 
     
-  # Variations 
+  ### Variations 
   
   Kalman Filter - applied to linear systems
   
@@ -77,7 +75,6 @@ This algorithm is used to estimate the state of the system when the measurements
  
  * The pressure measurements from the barometer are not perfectly accurate 
  * Electrcial noise from the sensor introduces more errors into the measurement. 
- 
  
  Solution: 
  
@@ -101,16 +98,8 @@ This algorithm is used to estimate the state of the system when the measurements
   
   Ideal vs Real world
   
-  * both know starting position 
-  
-  
-  In the real world the robot may encounter complexities that result in the robot's movement being imprecise.
-  
-  Terrain
-  wheel sleep
-  enviornment factors
-  
-  The robot will not reach the desired goal.
+It is often useful to model robots using an "Ideal World" assumption. This assumes that sensors are 100% accurate and the robots executes perfect motion. If a mobile robot is commeded to move 40 meter due west, the robot is gauranteed to reach its desired goal in a finite amount of time. However, in the real world, robots may encounter complexities that result in the robot's movement being imprecise. These complexities can include uneven terrain, wheel slipping (in wheeled mobile robots) and environmental factors such as wind speed, temperature and humidity. In both situations the robot knows it's starting position. However, In the "Real World" the same movement command will not produce the same results as in the ideal world assumption; it will like not reach the desired goal in a reasonable amount of time. Using the Real World assumption we know that sensors are inheriently prone to error. Therefore, when designing a complex system using sensors, we use datasheets to gain an understanding of the limits of the sensor and design our solutions to compensate for that error. 
+ 
   
   Example:
   
@@ -120,37 +109,34 @@ This algorithm is used to estimate the state of the system when the measurements
    This graph displays a probabilty distribution of the robot's fianl position after multiple iterations of the movement.
    
    The X-axis is the distance traveled by the robot
-   The Y-acxis is how often the robot stopped at that distance
+   The Y-axis is how often the robot stopped at that distance
    
-   The shape of the gaussian
+   It should be clear that the sensor data plays an important role in the localization problem. As discussed previously, real world sensors contain a lot of noise and must be filtered out in order to be useful for any localization problem. 
    
-   few enivornment factors movements are precise distribution is narrow
-   
-   Rescue missions have many environmental factors
-   
-   Sensors contain a bunch of sensor noise. 
-   
+   The robots internal belief about its state is represented by a gaussian disribution. The shape of the bell curve determines how "confident" our robot is about their current state. In an environment with only a few enviornmental factors, movement commands are precise and the shape of the Gaussian distribution is narrow (the robot is confident). Conversely, evnironments that contain many environmental factors (as is the case with a rescue mission robot), the Gaussian distribution is much wider; therefore the robot is less certain about its current state. 
+  
    Advantage
    ---
    
-   Movement and Sensory measurements are uncertain, the Kalman Filter takes in account the uncertainity of each sensor's measurement to help the robot better sense its own state. This estimatation happens only after a few sensor measurements. 
-   
+   Movement and Sensory measurements are uncertain, the Kalman Filter takes in account the uncertainity of each sensor's measurement to help the robot better sense its own state. This estimatation is fast; happening after only a few sensor measurements. 
    
    STEPS
    ---
-   Use an intitial guess and take in account of expected uncertainity 
    
-   Sensor Fusion - uses the kalman filter to calculate an accurate estimate using data from multiple sensor. 
+   To begin the Kalman cycle, the system generates an intitial guess about its state and takes in account of expected uncertainity. 
    
- 
+   Sensor Fusion - is the process in which the Kalman filter is used to calculate an accurate estimate of the system's state using data from multiple sensors. 
+   
   # 1D Gaussian
   
-   At the basis of the Kalman Filter is the Gaussian distribution also known as a bell curve. Imagine Hexpod Zero was commanded to execute 1 motion, the systems final location can be representedd as a Gaussian. Although the exact location is not certain, the level of uncertainity is bounded. 
+   It is worth remphasizing the basis of the Kalman Filter. At the core of this probablisitic algorithm is the Gaussian distribution also known as a bell curve. It can be used to represent the robot's certainity about its on pose relative to the world. For example if Hexpod Zero was commanded to execute 1 motion, the system's final location can be represented as a Gaussian, where the overall shape can illustrate how certain the robot is. Considering the real world assumption, the exact location is not certain, however the level of uncertainity is bounded. 
    
    The role of a Kalman Filter
    ---
    
-   After a movement command or a measurement update, the KF outputs a unimodal Gaussian distribution. This is considered its best guess at the true value of a parameter
+   After a movement command or a measurement update, the KF outputs a *unimoda* Gaussian distribution. This is considered its best guess at the true value of a parameter
+   
+  NOTE: Unimodal - implies a single peak present in the distribution.  
    
   NOTE: A Gaussian distribution is a probability distribution which is a continous function. 
    
@@ -158,7 +144,7 @@ This algorithm is used to estimate the state of the system when the measurements
    
    The probability that a random variable, x, will take a value between x1 and x2 is given by the integral of the function from x1 to x2. 
    
-   p(x1 < x < x2) = x2 integral x1 fx(x)dx
+   <a href="https://www.codecogs.com/eqnedit.php?latex=P(x_1&space;<&space;x&space;<&space;x_2)&space;=&space;x_2\int&space;x_1&space;f_x(x)dx" target="_blank"><img src="https://latex.codecogs.com/gif.latex?P(x_1&space;<&space;x&space;<&space;x_2)&space;=&space;x_2\int&space;x_1&space;f_x(x)dx" title="P(x_1 < x < x_2) = x_2\int x_1 f_x(x)dx" /></a>
    
    In the image below, the probability of the rover being located between 8.7m and 9m is 7%
    
@@ -170,30 +156,27 @@ This algorithm is used to estimate the state of the system when the measurements
    
    A gaussian is characterized by two parameters 
    
-   mean (mue) - represents the most probable occurrence. 
-   variance (sigma^2) - represents the width of the curve 
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> -  *mean* represents the most probable occurrence. 
+   <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^{2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^{2}" title="\sigma^{2}" /></a> - *Variance* represents the width of the curve 
    
-   NOTE: Unimodal - implies a single peak present in the distribution.
+ Gaussian distributions are frequently abbreviated as:
    
-   Gaussian distributions are frequently abbreviated as:
-   
-   (Nx: mue, sigma^2)
+   <a href="https://www.codecogs.com/eqnedit.php?latex=N(x:&space;\mu,&space;$&space;\sigma&space;^{2}&space;)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?N(x:&space;\mu,&space;$&space;\sigma&space;^{2}&space;)" title="N(x: \mu, $ \sigma ^{2} )" /></a>
    
    Formula
    ---
    
    <a href="https://www.codecogs.com/eqnedit.php?latex=p(x)&space;=&space;\frac{e^{\frac{-(x-\mu&space;)^{2}}{2\sigma&space;^{2}}}}{\sigma&space;\sqrt{2\pi&space;}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?p(x)&space;=&space;\frac{e^{\frac{-(x-\mu&space;)^{2}}{2\sigma&space;^{2}}}}{\sigma&space;\sqrt{2\pi&space;}}" title="p(x) = \frac{e^{\frac{-(x-\mu )^{2}}{2\sigma ^{2}}}}{\sigma \sqrt{2\pi }}" /></a>
    
-   NOTE: This formual contains an exponential of a quadratic function. The quadratic compares the value of x to (mue). In the case that x=mue the exponential is equal to 1 (e^0 = 1). 
+   NOTE: This formula contains an exponential of a quadratic function. The quadratic compares the value of x to <a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a>. In the case that x=<a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> the exponential is equal to 1 (e^0 = 1). 
    
-   NOTE:The constant in front of the exponential is a necessary normalizing factor. 
+   NOTE: The constant in front of the exponential is a necessary normalizing factor. 
    
-   In discrete proababiity, the probabilities of all the options must sum to one. 
-   
-   The area underneath the function always suns to one i.e (integral) p(x)dx = 1
+   In discrete proababiity, the probabilities of all the options must sum to one. The area underneath the function always suns to one i.e <a href="https://www.codecogs.com/eqnedit.php?latex=\int&space;p(x)&space;$&space;dx&space;=&space;1" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\int&space;p(x)&space;$&space;dx&space;=&space;1" title="\int p(x) $ dx = 1" /></a>
    
    Coding the 1D Gaussian in C++
 ---
+The following code will allow us to calculate of a value occuring given mean and variance
 
 ```cpp
 
@@ -202,22 +185,26 @@ This algorithm is used to estimate the state of the system when the measurements
 
 using namespace std;
 
-double f(double mu, double sigma2, double x)
+double f(double mu, double sigma2, double x) // create a 3 input function that takes in the mean, variance and the value variable
 {
 
-  prob = 1.0 / sqrt(2.0 * M_PI * sigma2) * exp(-0.5 * pow((x - mu), 2.0) / sigma2);
-  return prob;
+  prob = 1.0 / sqrt(2.0 * M_PI * sigma2) * exp(-0.5 * pow((x - mu), 2.0) / sigma2);  // calculate the 1D Gaussian using the formula 
+  return prob; // return the results to be used throughout the program 
   
 }
 
-int main()
+int main() // initialize the main function
 {
-cout<< f(10.0, 4.0, 8.9) << endl;
+cout<< f(10.0, 4.0, 8.9) << endl; // call the function with mean = 10, variance = 4.0 and x = 8.9 
 return 0; 
 }
 
 ```
-   What is represented by a Gaussian distribution?
+Results : 0.120985
+
+
+
+What can be represented by a Gaussian distribution?
    ---
    
    * Predicted Motion
@@ -225,7 +212,7 @@ return 0;
    * Estimated State of Robot
    
    
-   Kalman Filters treat all noise as unimodal Gaussian. This is not the case in reality. The algorithm is optimal if the noise is Gaussian. 
+   Kalman Filters treat all noise as unimodal Gaussian. However, this is not the case in reality but the algorithm is optimal if the noise is Gaussian. 
    
    NOTE: Optimal means that the algorithm minimizes the mean square error of the estimated parameters. 
    
@@ -235,24 +222,15 @@ return 0;
    Naming conventions
    ---
    
-   Since a robot is unable to sense the world around it with complete certainity it holds an internal belief *Bel( )*
+   Since a robot is unable to sense the world around it with complete certainity, it holds an internal belief *Bel( )* It's best guess at the state of the environment including itself.
    
-   A robot constrained to a plane can be identified with *3 state variables*
+   A robot constrained to a plane can be identified with *3 state variables* Two coordinates, x and y to identify its position, and one angle *yaw* to identify its orientation. 
    
-   **state: x**
-   **measurement: z**
-   **control action: u**
+   **<a href="https://www.codecogs.com/eqnedit.php?latex=x_t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?x_t" title="x_t" /></a>: state** - Since the state of the system changes over time, we use a subscript, <a href="https://www.codecogs.com/eqnedit.php?latex=t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?t" title="t" /></a>, to denote the state at a particular. 
+   **<a href="https://www.codecogs.com/eqnedit.php?latex=z_t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?z_t" title="z_t" /></a>: measurement** - Obtained through the use of sensors. We use a subscript, <a href="https://www.codecogs.com/eqnedit.php?latex=t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?t" title="t" /></a>, to represent the measurement obtained at time <a href="https://www.codecogs.com/eqnedit.php?latex=t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?t" title="t" /></a>. 
+   **<a href="https://www.codecogs.com/eqnedit.php?latex=u_t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?u_t" title="u_t" /></a>: control action** - Represents the change in state that occured between time <a href="https://www.codecogs.com/eqnedit.php?latex=t-1" target="_blank"><img src="https://latex.codecogs.com/gif.latex?t-1" title="t-1" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?t" title="t" /></a> 
    
-   
-  1. Measurement update 
-  
-  Sensors provide values called meaurements denoted z_t, where t respresents the time that measurement was taken.
-  
-  2. Control actions are used to change the state of the system, x.
-  
- 2. State Prediction 
-  
-  u_t is the predicted state at time t. 
+
   
   ![alt text][image4]
   
@@ -266,66 +244,41 @@ return 0;
   
  # Measurement update 
  
-  Mean Calculation:
- ---
- 
  We'll start the Kalman filter implementation with the measurement update 
- 
- 1D Robot Example:
+  Mean Calculation: 1-D Robot 
  ---
  
- A roaming mobile robot. 
+ Consider a roaming mobile robot starting at some origin. It travels the positive x direction and stops momentarily. The robot thinks its current position is near 20 m mark, but it is not very certain. Therefore, the Gaussian of the *prior belief*  <a href="https://www.codecogs.com/eqnedit.php?latex=N(x:&space;\mu&space;=20&space;,$&space;\sigma^2&space;=&space;9)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?N(x:&space;\mu&space;=20&space;,$&space;\sigma^2&space;=&space;9)" title="N(x: \mu =20 ,$ \sigma^2 = 9)" /></a> has a wide probability distribution. 
  
- The robot is thinks its current position is near 20- m mark, but it is not very certain. There the Gaussian of the PRIOR BELIF N(x:mu=20, sig2=9) has a wide probability distribution. 
+ The robot then takes its very first data measurement. The measurement data, z, is more certain so it has a more narrower Gaussian represented as <a href="https://www.codecogs.com/eqnedit.php?latex=N(x:&space;\upsilon&space;=30&space;,$&space;r^2&space;=&space;3)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?N(x:&space;\upsilon&space;=30&space;,$&space;r^2&space;=&space;3)" title="N(x: \upsilon =30 ,$ r^2 = 3)" /></a> 
  
- The robot then takes its very first data measurement. The measurement N(x:v=30, r2=3) data Z is more certain so it has a more narrower gaussian. 
- 
- Given our prior belief about the robot's state and the measurement that it collected the robot's new belief lies somewhere between the two gaussians since it is a combination of them. 
+ Given our prior belief about the robot's state and the measurement that it collected the robot's new belief lies somewhere between the two gaussians since it is a combination of them. The new mean is a weighted sum of the prior belief and the measurement means.
  
  NOTE: Since the measurement is more certain the new belief lies closer to the measurement. label as *A*
  in the image below
  
   ![alt text][image5]
  
- mue: Mean of the prior belief 
- sig2: Variance of the prior belief
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> : Mean of the prior belief 
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^{2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^{2}" title="\sigma^{2}" /></a>: Variance of the prior belief
  
- v: Mean of the measurement
- r2: Variance of the measurement
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\upsilon" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\upsilon" title="\upsilon" /></a>: Mean of the measurement
+ <a href="https://www.codecogs.com/eqnedit.php?latex=r^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?r^2" title="r^2" /></a>: Variance of the measurement
  
- 
- The new measn is a weighted sum of the prior belief and the measurement means. 
- 
- uncertainity - a larger number represents a more uncertain probability distribution. 
- 
- The mew mean should be biased towards the measurement update which has a smaller standard deviation than the prior.
- 
-mu_prime = (r2*mu + sig2*v)/(r2 + sig2)
+ When it comes to uncertainity, a larger number represents a more uncertain probability distribution. It is intuitive to assume that the new mean should be biased towars the measurement which has a smaller stanard distribution than the prior. To accomplish this, the uncertaintiy of the prior is multiplied by the mean of the measure to give it more weight. Also, the uncertainity of the measurement is multiplied with the mean of the prior. See the equation below.
 
-NOTE: uncertainity of the prior is multiplied by the mean measurement to give it more weight
-
-NOTE: uncertainity of the measurement is multiplied with the mean of the prior. 
-
-After applying the formula above we generate a new mean of 27.5 wich we label on the following graph:
+<a href="https://www.codecogs.com/eqnedit.php?latex=\mu{}'&space;=&space;\frac{r^2\mu&space;&plus;&space;\sigma^2\upsilon&space;}{r^2&plus;&space;\sigma^2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu{}'&space;=&space;\frac{r^2\mu&space;&plus;&space;\sigma^2\upsilon&space;}{r^2&plus;&space;\sigma^2}" title="\mu{}' = \frac{r^2\mu + \sigma^2\upsilon }{r^2+ \sigma^2}" /></a>
+ 
+After applying the formula above we generate a new mean of 27.5 and a variance of 2.25 which we label on the following graph:
 
 ![alt text][image6]
 
-
- 
-
- 
  Variance Calculation
  ---
  
- The variance of the new state estimate will be more confident than our measurement. 
+ The variance of the new state estimate will be more confident than our measurement because the two Gaussians provide us with more informaton together than either Gaussian offered alone. As a result, our new state estimate is more confidenet than our prior belief and our measurement. This is easily noticed by a higher peak and is narrower shape. The formula for calculating the variance is illustrated below. 
  
- The two Gaussians provide us with more informaton together than either Gaussian offered alone. As a result, our new state estimate is more confidenet than our prior belief and our measurement. 
- 
- It has a higher peak and is narrower.
- 
- the formula for the new variance 
- 
- sig2prime = (1)/((1/r2)+(1/sig2))
+<a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^2^'&space;=&space;\frac{1}{\frac{1}{r^2}&plus;\frac{1}{\sigma^2}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^2^'&space;=&space;\frac{1}{\frac{1}{r^2}&plus;\frac{1}{\sigma^2}}" title="\sigma^2^' = \frac{1}{\frac{1}{r^2}+\frac{1}{\sigma^2}}" /></a>
 
 Entering the variances from our example into this formula produces a new variance of 2.25
 
@@ -333,19 +286,19 @@ Entering the variances from our example into this formula produces a new varianc
  
  
  
-  mue: Mean of the prior belief 
- sig2: Variance of the prior belief
+<a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> : Mean of the prior belief 
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^{2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^{2}" title="\sigma^{2}" /></a>: Variance of the prior belief
  
- v: Mean of the measurement
- r2: Variance of the measurement
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\upsilon" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\upsilon" title="\upsilon" /></a>: Mean of the measurement
+ <a href="https://www.codecogs.com/eqnedit.php?latex=r^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?r^2" title="r^2" /></a>: Variance of the measurement
  
- tau: Mean of the posterior
- s2: Variance of the posterior
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\tau" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\tau" title="\tau" /></a>: Mean of the posterior
+ <a href="https://www.codecogs.com/eqnedit.php?latex=s^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?s^2" title="s^2" /></a>: Variance of the posterior
  
  
  PROGRAMMING: Mean and Variance Formulas in C++ 
  ---
- 
+ The followign code creates a measurement_update function which is one part of the Kalman Filter Implementation
  
  ``` cpp
  
@@ -357,40 +310,42 @@ Entering the variances from our example into this formula produces a new varianc
  
  using namespace std;
  
- double new_mean, new_var;
+ double new_mean, new_var; //initialize variables
  
- tuple < double, double> measurement_update(double mean1, double var1, double mean2, double var2)
+ tuple < double, double> measurement_update(double mean1, double var1, double mean2, double var2) //create a function that returns a tuple of two double data types
  {
- new_mean = (var2*mean1 + var1*mean2)/(var1 + var2)
- new_var = (1)/((1/var2)+(1/var1)) 
-     return make_tuple(new_mean, new_var);
+ new_mean = (var2*mean1 + var1*mean2)/(var1 + var2) // calculates the new mean
+ new_var = (1)/((1/var2)+(1/var1)) // calculates the new variance
+     return make_tuple(new_mean, new_var); // return a tuple to be used throughout the program 
 }
 
 int main()
 {
 
-    tie(new_mean, new_var) = measurement_update(10, 8, 13, 2);
+    tie(new_mean, new_var) = measurement_update(10, 8, 13, 2); //unpacks the tuple into two variables 
     printf("[%f, %f]", new_mean, new_var);
     return 0;
 }
 
 ```
 
+Results: [12.40000, 1.60000]
+
 # State Prediction 
 
-The second half of the Kalman filter's iterative cycle
+Now we address the second half of the Kalman filter's iterative cycle. The State Prediction is the estimation that takes place after an uncertain motion or an innately noisey sensor. Since the Kalman filter is an iterative process, we pick up where we left off right after the measurement update. The posterior belief that we obtained in the last step now becomes the prior belief for the State Prediction step. This can be considered the robots best estimation of its current location (and a better measurement of it's initial estimation)
 
-Estimation that takes place after an uncertain motion. 
+The robot now executes a motion command: move forward 7.5 meters, the results of this motion is a gaussian distribution centered around 7.5 m with variance of 5 m represented as <a href="https://www.codecogs.com/eqnedit.php?latex=N(x:\mu=7.5,&space;$&space;\sigma^2&space;=5)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?N(x:\mu=7.5,&space;$&space;\sigma^2&space;=5)" title="N(x:\mu=7.5, $ \sigma^2 =5)" /></a>.
 
-We pick up where we left off and the posterior belief becomes the prior belief. This is the robot's best estimate of its current location. 
-
-Robot execute a motion command, move forward 7.5 meters N(x:mu=7.5, sig2=5), the results of this motion is a gaussian distribution centered around 7.5 m with variance of 5 m.
+Formulas
+---
 
 Calculating the new estimate aka the new posterior Gaussian:
 
-1. add the mean of the motion to the mean of the prior --> Posterior N(x:=(mu1+mu2), sig2=(sig2_1 +sig2_2)) 
-2. Add the variance of the motion to the variance of the prior (see line 1)
- 
+*Posterior Mean:* <a href="https://www.codecogs.com/eqnedit.php?latex=\mu'&space;=&space;\mu_1&space;&plus;&space;\mu_2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu'&space;=&space;\mu_1&space;&plus;&space;\mu_2" title="\mu' = \mu_1 + \mu_2" /></a>
+
+*Posterior Variance:* <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^2^{'}&space;=&space;\sigma^2_1&space;&plus;&space;\sigma^2_2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^2^{'}&space;=&space;\sigma^2_1&space;&plus;&space;\sigma^2_2" title="\sigma^2^{'} = \sigma^2_1 + \sigma^2_2" /></a>
+
  ![alt text][image8]
  
  PROGRAMING: THE STATE PREDICTION 
@@ -405,24 +360,27 @@ Calculating the new estimate aka the new posterior Gaussian:
 
 using namespace std;
 
-double new_mean, new_var;
+double new_mean, new_var; // initialize the variables
 
-tuple<double, double> state_prediction(double mean1, double var1, double mean2, double var2)
+tuple<double, double> state_prediction(double mean1, double var1, double mean2, double var2) //create a function that returns a tuple of 2 doubles
+
 {
-    new_mean = mean1 + mean2;
-    new_var =  var1 + var2;
+    new_mean = mean1 + mean2; // in the State Prediction step, the new mean is the sum of the prior blief's mean and the executed motion's mean. 
+    new_var =  var1 + var2; // in the State Prediction step, the new variance is the sum of the prior belief's varianca and the executed motion's variance
     return make_tuple(new_mean, new_var);
 }
 
 int main()
 {
 
-    tie(new_mean, new_var) = state_prediction(10, 4, 12, 4);
+    tie(new_mean, new_var) = state_prediction(10, 4, 12, 4); 
     printf("[%f, %f]", new_mean, new_var);
     return 0;
 }
 
 ```
+ Results: [22.00000, 8.0000]
+ 
  
   # 1-D Kalman Filter
   
@@ -432,7 +390,7 @@ Below is support code to call the two functions one after the other as long as m
   
   ``` cpp
   
- #include <iostream>
+#include <iostream>
 #include <math.h>
 #include <tuple>
 
@@ -440,14 +398,14 @@ using namespace std;
 
 double new_mean, new_var;
 
-tuple<double, double> measurement_update(double mean1, double var1, double mean2, double var2)
+tuple<double, double> measurement_update(double mean1, double var1, double mean2, double var2)//measurement_update function
 {
     new_mean = (var2 * mean1 + var1 * mean2) / (var1 + var2);
     new_var = 1 / (1 / var1 + 1 / var2);
     return make_tuple(new_mean, new_var);
 }
 
-tuple<double, double> state_prediction(double mean1, double var1, double mean2, double var2)
+tuple<double, double> state_prediction(double mean1, double var1, double mean2, double var2) // state prediction function
 {
     new_mean = mean1 + mean2;
     new_var = var1 + var2;
@@ -457,21 +415,21 @@ tuple<double, double> state_prediction(double mean1, double var1, double mean2, 
 int main()
 {
     //Measurements and measurement variance
-    double measurements[5] = { 5, 6, 7, 9, 10 };
-    double measurement_sig = 4;
+    double measurements[5] = { 5, 6, 7, 9, 10 }; // create an array with 5 elements
+    double measurement_sig = 4; // define a variance for the measurement data
     
     //Motions and motion variance
-    double motion[5] = { 1, 1, 2, 1, 1 };
-    double motion_sig = 2;
+    double motion[5] = { 1, 1, 2, 1, 1 }; // create an array with 5 elements 
+    double motion_sig = 2; // define a variance for the motion data 
     
     //Initial state
-    double mu = 0;
-    double sig = 1000;
+    double mu = 0;  //initialize the robot with a zero mean
+    double sig = 1000; // initialize the robot with a variance of 1000 
 
-    for (int i = 0; i < sizeof(measurements) / sizeof(measurements[0]); i++) {
-        tie(mu, sig) = measurement_update(mu, sig, measurements[i], measurement_sig);
+    for (int i = 0; i < sizeof(measurements) / sizeof(measurements[0]); i++) { // used to loop through measurement and motion arrays.
+        tie(mu, sig) = measurement_update(mu, sig, measurements[i], measurement_sig); // uses the measurement_update update the mean and variance 
         printf("update:  [%f, %f]\n", mu, sig);
-        tie(mu, sig) = state_prediction(mu, sig, motion[i], motion_sig);
+        tie(mu, sig) = state_prediction(mu, sig, motion[i], motion_sig); // uses the state_prediction update the mean and the variance
         printf("predict: [%f, %f]\n", mu, sig);
     }
 

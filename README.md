@@ -105,7 +105,7 @@ More Localization algorithms
 
 * Markov - a base filter localization, that maintains a probablitlity distribution over the set of possible poses (i.e position and orientation values of the robot.)
 
-* Gird - histogram filter that estimates the pose of a robot using grid. See Udacity's Free Course in Artificial Intelligence for Robotics ![click here][link1] 
+* Gird - histogram filter that estimates the pose of a robot using grid. See Udacity's Free Course in Artificial Intelligence for Robotics [link1] 
 * Monte Carlo - A particle filter approach that is relatively easy to implement. 
 
 

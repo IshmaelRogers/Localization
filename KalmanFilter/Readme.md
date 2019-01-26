@@ -445,30 +445,46 @@ So far we've looked at 1-D Gaussian distributions which are useful for represent
 
 In the real world most robots models are moving in multiple dimensions; for example a robot on a plane would have an x & y coordinates to identify its position. It would be conveient if we could use multiple 1-D Gaussians to represent multi-dimensional systems. However we can't because there may be correlations between dimensions that we would not be able to model by using independent 1-D Gaussians. 
   
-  2-D Gaissian Distribution
+  2-D Gaissian Distributions
+  ---
   ![alt text][image10]
   
-  Consider x,y coordinate of a robot:
+ A 2-D Gaussian can be use represent the x and y coordinates of a robot. The contour lines show variations in height. The same concepts can be applied to higher dimension Gaussian Distributions.  
   
-  A 2-D Gaussian can also be represented as follows
   
   ![alt text][image11]
-  
-  Where the contour lines show variations in height
+
+
+When we implemented the 1-D Gaussian previously,the mean,<a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> and the variance,  <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^{2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^{2}" title="\sigma^{2}" /></a>: was represened as a single value. In 2-D space, <a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> and the variance,  <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma^{2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma^{2}" title="\sigma^{2}" /></a> is a vector that contains a mean value for each dimension. 
   
   mean is a vector:
   
-  mu = [mux
-        muy]
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\mu" title="\mu" /></a> = <a href="https://www.codecogs.com/eqnedit.php?latex=\begin{bmatrix}&space;\mu_x\\&space;\mu_y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\begin{bmatrix}&space;\mu_x\\&space;\mu_y&space;\end{bmatrix}" title="\begin{bmatrix} \mu_x\\ \mu_y \end{bmatrix}" /></a>
         
+ 
  NOTE: An N-dimensional Gaussian would have a mean vector that are sized N by 1 
  
- Covariance is a vector:
+ Variance is also represented differently than in 1-D example. In 2-D space it is a 2 x 2 matrix that is referred to as the *covariance* matrix. This matrix represents the spread of the Gaussian into two dimensions. 
  
- SIGMA = [ sig2_x   sigxsigy
-           sigysigx  sig2y]
-           
-  - represensts the spread of the Gaussian into two dimensions. An N dimensional Gaussian would have a covariance matrix that is of size N x N
+  
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\Sigma&space;=&space;\begin{bmatrix}&space;\sigma^2&space;&&space;\sigma_x\sigma_y&space;\\&space;\sigma_y\sigma_x&&space;\sigma^2_y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\Sigma&space;=&space;\begin{bmatrix}&space;\sigma^2&space;&&space;\sigma_x\sigma_y&space;\\&space;\sigma_y\sigma_x&&space;\sigma^2_y&space;\end{bmatrix}" title="\Sigma = \begin{bmatrix} \sigma^2 & \sigma_x\sigma_y \\ \sigma_y\sigma_x& \sigma^2_y \end{bmatrix}" /></a>
+
+The diagonal values of the matrix represent the variance while the off-diagonal values represent the correlation terms. 
+  
+  NOTE: The covariance matrix is always symmetrical i.e <a href="https://www.codecogs.com/eqnedit.php?latex=\sigma_x\sigma_y&space;=&space;\sigma_y\sigma_x" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sigma_x\sigma_y&space;=&space;\sigma_y\sigma_x" title="\sigma_x\sigma_y = \sigma_y\sigma_x" /></a>. In the Case of the 2-D Gaussian the off diagonal elements are always equivalent
+  
+  
+Cases:
+--- 
+
+If the x and y variances are both small and equal to each other. Then the distribution will be circular. This indicates that our system is equal sure about it's position in the x and y axis.
+
+If the x and y variances are not equal then you will be more or less certain about the location of the robot in the either the x or y axis, and vice versa. The Gaussian will become more oval. 
+
+If the correlation terms are non-zero the two axis are correlated. The results are a skewed oval. If the terms multiply out to a positive or negative value, the oval will skew to the right or the left respectively. Once you get info about one axis it will reveal information about the other due to the correlation. 
+
+The 2-D Gaussian can be modeled with the following equation: 
+  
   
   PICTURE OF FORMULAS FOR MULTIVARIATE GAUSSIAN
   

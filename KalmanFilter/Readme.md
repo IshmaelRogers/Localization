@@ -490,17 +490,7 @@ The 2-D Gaussian can be modeled with the following equation:
   
   ![alt text][image14]
   
-  NOTE: The eigenvalues and egienectors of the covariance matrix describe the amount and direction of uncertainity. 
-  
-  The diagonal value of the matrix represent the variance 
-  
-  The off diagonals represent the corrleation terms
-  
-  NOTE: The covariance matrix is always symetrical. 
-  
-  In the case of the 2-D Gaussian the two off diagonal elements are equal.
-  
-  If the correlation terms are non-zero the two axis are corrleatied and the gaussian will apear as a skewed oval
+  NOTE: The *eigenvalues* and *egienvectors* of the covariance matrix describe the amount and direction of uncertainity. 
   
   ![alt text][image12]
   
@@ -512,48 +502,32 @@ The 2-D Gaussian can be modeled with the following equation:
   
   # Multidimensional KF
   
-  The state is represented in a Nx1 vector 
+  In our one dimensional example, the system's state was represented by one variable. In 2-D the state is represented by an Nx1 vector that contains N state variables. Considering the 2-D robot, these two state variables could be its x and y position on a given map <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\begin{bmatrix}&space;x\\&space;y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\begin{bmatrix}&space;x\\&space;y&space;\end{bmatrix}" title="\begin{bmatrix} x\\ y \end{bmatrix}" /></a>, Or the position and velocity of the robot <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" title="\begin{bmatrix} x\\ \dot{x} \end{bmatrix}" /></a>.
   
   
- TOPIC: Position and velocity of robot
-  
-   The robot's state needs to be Observable in 1D case which means it can be directly measured through sensors.
+   The robot's state needs to be Observable in 1D case which means it can be directly measured through sensors. However, in multi-dimensional states there may exist *hidden state variables*, such as velocity. The velocity of the robot must instead be infered from other states and measurements. The position is observable because it can be measured directly with the various sensors.
    
-   In multi-dimensional states there may exist *hidden state variables, such as velcoity since it is not directly measure. It is infered from other states and measurements. The position is observable.
+   NOTE: Hidden state variables cannot be measured with the sensors available.
    
-   The position and velocity are linked through a formula 
    
-   x_prime = x + x_dot*delta_t
+   In Physics, the position and velocity over time are linked through a formula:
    
-  Given:
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;{x}'=x&space;&plus;&space;\dot{x}\Delta&space;t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;{x}'=x&space;&plus;&space;\dot{x}\Delta&space;t" title="{x}'=x + \dot{x}\Delta t" /></a>
   
-  initial_pos;
-  
-  Find:
-  
-  velocity;
- 
- The estimate of the robot's state would look like the following: 
+  Looking at this one the graph, if the robot's position is given but its velocity is not, the estimate of the robot's state would look like the following: 
  
  ![alt text][image15]
  
- A Gaussian that is:
+ Below are features of this Gaussian that must be understoo:
  
- 1. very narrow in the x direction implying that the robot is very certain about it's position
+ 1. The distribution is very narrow in the <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x" title="x" /></a> direction implying that the robot is very certain about it's position.
  
- 2. very wide in the y direction implying that the robot is not very certain about its velocity
+ 2. The distribution is very wide in the <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}" title="\dot{x}" /></a> direction because the robot's velocity is completely unknown
  
- 3. State prediction is calculated 
+State prediction 
+---
  
- NOTE: Knowing the relationship between the hidden variable and observable variable is key to calculating the state prediction
-  
-  Example: 1 iteration of the Kalman Filter takes 1s
-  
-  Use the formula to calculate the posterior state for each possible velocity  
-  
-  velocity = 0 
-  
-  the posterior state would be identical to the prior. 
+Knowing the relationship between the hidden variable and observable variable is key to calculating the state prediction. To illustrate this point let's assume that one iteration of the Kalman Filter takes 1 second <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\Delta&space;t&space;=1" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\Delta&space;t&space;=1" title="\Delta t =1" /></a>. We can use the formula to calculate the *posterior state* for each possible velocity. For example, if the velocity is zero, the posterior state would be identical to the prior. 
   
   ![alt text][image16]
   
@@ -562,11 +536,11 @@ The 2-D Gaussian can be modeled with the following equation:
 ![alt text][image17]
   
   
-  Measurement Update Step
+  Measurement Update
   ---
-  The initial belief was useful to calculate the state prediction but has no additional value. The result of the state prediction is the Prior Belief for the measurement update. 
+  The initial belief was useful to calculate the state prediction but is not useful otherwise. The result of the state prediction is the Prior Belief for the measurement update. 
   
-  If the new measurement suggests a location of X equals 50 then, we apply the measurement update to the prior, the posterior will be very small and centered around X equals 50 and x_dot equals 50. 
+  If the new measurement suggests a location of <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=50" title="x=50" /></a> then, we apply the measurement update to the prior, the posterior will be very small and centered around <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=50" title="x=50" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}=50" title="\dot{x}=50" /></a>4. 
   
   ![alt text][image18]
   

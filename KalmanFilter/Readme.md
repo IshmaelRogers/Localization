@@ -860,23 +860,22 @@ However if we examine the graph of f(x) more closesly we see that for very short
   
   ![alt text][image30]
   
-  Instead of using the measurement residual equation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-h(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-h(x')" title="y=z-h(x')" /></a> , the mapping must be made with a dedication function, h(x').
+  The measurement residual equation becomes <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-h(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-h(x')" title="y=z-h(x')" /></a> , the mapping must be made with a dedication function, h(x').
   
   ![alt text][image31] 
   
  
- The measurement residual equation becomes y = z - h(x')
- 
- Our measurement covariance matrix cannot be updated the same way because it would turn into a non-Gaussian distribution. 
+
+ The measurement covariance matrix cannot be updated the same way because it would turn into a non-Gaussian distribution. 
  
  Now we calculate a linearization, H and use it instead
  
- The Taylor series for the function h(x), centered about the mean mu is defined. 
+ The Taylor series for the function <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;h(x)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;h(x)" title="h(x)" /></a>, centered about the mean<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;\mu" title="\mu" /></a> is defined below:
  
 ![alt text][image32]
 
 
-The Jacobian, Df(mu), is defined below. We'll call it H since it is the linearization of measurement function, h(x)
+The Jacobian,<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;Df(\mu)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;Df(\mu)" title="Df(\mu)" /></a>, is defined below. We'll call it H since it is the linearization of measurement function, h(x)
 
 ![alt text][image33]
 
@@ -897,18 +896,14 @@ Summary
 
 
   
-  
-  
-  
   # EKF Example 
   
-  A quadrotor with motion contsrained to the y-axis:
+  We'll take a look at a different type of vehicle taking measurements; a quadrotor with motion contsrained to the y-axis. Its State Vector can be defined as follows:
   
-  State Vector
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{v}&space;\\&space;y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{v}&space;\\&space;y&space;\end{bmatrix}" title="x = \begin{bmatrix} \phi \\ \dot{v} \\ y \end{bmatrix}" /></a>
   
-  x = [phi; ydot; y]
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;\phi" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;\phi" title="\phi" /></a> = roll angle 
   
-  phi = roll angle 
   ydot = velocity
   y = position 
   

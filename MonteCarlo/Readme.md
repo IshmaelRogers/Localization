@@ -991,7 +991,7 @@ $ git clone https://github.com/udacity/RoboND-MCL-Lab
 
 $ cd RoboND-MCL-Lab/
 $ rm -rf Images/*
-$ g++ main.cpp -o app -std=c++11 -I/usr/include/python2.7 - lpython2.7
+$ g++ main.cpp -o app -std=c++11 -I/usr/include/python2.7 -lpython2.7
 
 ```
 

@@ -900,31 +900,27 @@ Summary
   
   We'll take a look at a different type of vehicle taking measurements; a quadrotor with motion contsrained to the y-axis. Its State Vector can be defined as follows:
   
- <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{v}&space;\\&space;y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{v}&space;\\&space;y&space;\end{bmatrix}" title="x = \begin{bmatrix} \phi \\ \dot{v} \\ y \end{bmatrix}" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{y}&space;\\&space;y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?x&space;=&space;\begin{bmatrix}&space;\phi&space;\\&space;\dot{y}&space;\\&space;y&space;\end{bmatrix}" title="x = \begin{bmatrix} \phi \\ \dot{y} \\ y \end{bmatrix}" /></a>
   
   <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;\phi" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;\phi" title="\phi" /></a> = roll angle 
   
-  ydot = velocity
-  y = position 
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\dot{y}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dot{y}" title="\dot{y}" /></a> = velocity
+  <a href="https://www.codecogs.com/eqnedit.php?latex=y" target="_blank"><img src="https://latex.codecogs.com/gif.latex?y" title="y" /></a> = position 
   
-  The quadrotor below is equipped with a ranger finder, so it to knoes the distance between it and the wall. 
+  The quadrotor below is equipped with a ranger finder, so it to knows the distance between it and the wall. 
+  
+  ![alt text][image37]
   
   
-  1[alt text][image37]
-  
-  
-  In the current configuration the expected measurement to the wall would be 
-  
-  * h(x) = wall - y
-  
-  Now consider what would happen if the quadrotor were to roll to some angle phi:
+  In the current configuration the expected measurement to the wall would be <a href="https://www.codecogs.com/eqnedit.php?latex=h(x)&space;=&space;wall&space;-&space;y" target="_blank"><img src="https://latex.codecogs.com/gif.latex?h(x)&space;=&space;wall&space;-&space;y" title="h(x) = wall - y" /></a> Now consider what would happen if the quadrotor were to roll to some angle <a href="https://www.codecogs.com/eqnedit.php?latex=\phi" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\phi" title="\phi" /></a>:
   
   ![alt text][image38]
   
-  The equation for the measurement when the quadrotor has roll angle of phi is derived from basic trignonometry
+  A general equation for the measurement when the quadrotor has roll angle of phi is derived from basic trignonometry
   
   
-  h(x) = (wall -  y) / cos(phi)
+  <a href="https://www.codecogs.com/eqnedit.php?latex=h(x)&space;=&space;\frac{(wall-y)}{cos(\phi)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?h(x)&space;=&space;\frac{(wall-y)}{cos(\phi)}" title="h(x) = \frac{(wall-y)}{cos(\phi)}" /></a>
+  
   
   NOTE: The cosine in the denominator makes this function non-linear. Therefore an Extended Kalman Filter is needed to estimate and linearize the function. 
   

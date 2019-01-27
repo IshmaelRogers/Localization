@@ -6,6 +6,11 @@
 [image5]: ./images/mcl.png
 [image6]: ./images/mclvsekf.png
 [image7]: ./images/ekf.png
+[image8]: ./images/resample_wheel.png
+[image9]: ./images/
+[image10]: ./images/
+[image11]: ./images/
+[image12]: ./images
 
 
 
@@ -699,9 +704,7 @@ int main()
 ```
 # Resampling
 
-Sensor and update was successfully 
-
-given a set of n particle p1....pN, each particle has:
+Thus far, the sensor and motion update was successfully implemented in C++. Now we look into the second major section of the MCL algorithm. The resampling process. Given a set of n particle p1....pN, each particle has:
 
 1. A pose (x1,y1,theta1)...(xN,yN,thetaN)
 
@@ -709,11 +712,234 @@ given a set of n particle p1....pN, each particle has:
 
 3. We can sum all these weights and call the result, W then we computer the normalized weight (alpha) by dividing each weight by the normalizer, W 
 
-alpha is the probability of each particle being selected from the whole. The sun of all alphas must equal 1
+<a href="https://www.codecogs.com/eqnedit.php?latex=\alpha" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\alpha" title="\alpha" /></a> is the probability of each particle being selected from the whole. 
 
-The resampler regorup all N normalized weights into a bag, Particle 2 and 3 have a large weight . By the end of the resampling process there will be N number of particle  as there were originally.
+The sum of all <a href="https://www.codecogs.com/eqnedit.php?latex=\alpha" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\alpha" title="\alpha" /></a> must equal 1
 
-At each iteration the resampling process is more likelyt to pick particles with large probablilites or alphas
+The resampler regorups all N normalized weights into a bag, Particle 2 and 3 have a large weight . By the end of the resampling process there will be N number of particle as there were originally.
+
+At each iteration the resampling process is more likely to pick particles with large probablilites or alphas to save while the others die. 
+
+``` cpp
+#include <iostream>
+
+using namespace std;
+
+double w[] = { 0.6, 1.2, 2.4, 0.6, 1.2 };
+double sum = 0;
+
+void ComputeProb(double w[], int n)
+{
+    for (int i = 0; i < n; i++) {
+        sum = sum + w[i];
+    }
+    for (int j = 0; j < n; j++) {
+        w[j] = w[j] / sum;
+        cout << "P" << j + 1 << "=" << w[j] << endl;
+    }
+}
+
+int main()
+{
+    ComputeProb(w, sizeof(w) / sizeof(w[0]));
+    return 0;
+}
+```
+
+# Resampling Wheel 
+
+We'll look at how particles are picked for the resampling step. In the picture below we are given 8 particles, each with a specific weight. They are initially group in a wheel, where each particle occupies a space depending on it weight.
+
+Psuedo Code
+
+``` 
+index = U[1...N]
+<a href="https://www.codecogs.com/eqnedit.php?latex=\beta" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\beta" title="\beta" /></a> = 0
+for i = 1...N
+<a href="https://www.codecogs.com/eqnedit.php?latex=\beta&space;=&space;\beta&space;&plus;&space;U&space;[0..2&space;\ast&space;w_{max}]" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\beta&space;=&space;\beta&space;&plus;&space;U&space;[0..2&space;\ast&space;w_{max}]" title="\beta = \beta + U [0..2 \ast w_{max}]" /></a>
+while <a href="https://www.codecogs.com/eqnedit.php?latex=w_{index}&space;<&space;\beta" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w_{index}&space;<&space;\beta" title="w_{index} < \beta" /></a>
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\beta&space;=&space;\beta&space;-&space;w_{index}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\beta&space;=&space;\beta&space;-&space;w_{index}" title="\beta = \beta - w_{index}" /></a>
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=index&space;=&space;index&space;&plus;&space;1" target="_blank"><img src="https://latex.codecogs.com/gif.latex?index&space;=&space;index&space;&plus;&space;1" title="index = index + 1" /></a>
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=select$&space;p_{index}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?select$&space;p_{index}" title="select$ p_{index}" /></a>
+
+Now we will code the resampling wheel in C++
+
+``` cpp
+
+int main()
+{
+    //Practice Interfacing with Robot Class
+    Robot myrobot;
+    myrobot.set_noise(5.0, 0.1, 5.0);
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    //cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    //cout << myrobot.read_sensors() << endl;
+
+    // Create a set of particles
+    int n = 1000;
+    Robot p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].set_noise(0.05, 0.05, 5.0);
+        //cout << p[i].show_pose() << endl;
+    }
+
+    //Re-initialize myrobot object and Initialize a measurment vector
+    myrobot = Robot();
+    vector<double> z;
+
+    //Move the robot and sense the environment afterwards
+    myrobot = myrobot.move(0.1, 5.0);
+    z = myrobot.sense();
+
+    // Simulate a robot motion for each of these particles
+    Robot p2[n];
+    for (int i = 0; i < n; i++) {
+        p2[i] = p[i].move(0.1, 5.0);
+        p[i] = p2[i];
+    }
+
+    //Generate particle weights depending on robot's measurement
+    double w[n];
+    for (int i = 0; i < n; i++) {
+        w[i] = p[i].measurement_prob(z);
+        //cout << w[i] << endl;
+    }
+
+    // resampling process
+
+   Robot p3[n];
+    int index = gen_real_random() * n;
+    //cout << index << endl;
+    double beta = 0.0;
+    double mw = max(w, n);
+    //cout << mw;
+    for (int i = 0; i < n; i++) {
+        beta += gen_real_random() * 2.0 * mw;
+        while (beta > w[index]) {
+            beta -= w[index];
+            index = mod((index + 1), n);
+        }
+        p3[i] = p[index];
+    }
+    for (int k=0; k < n; k++) {
+        p[k] = p3[k];
+        cout << p[k].show_pose() << endl;
+    }
+
+    return 0;
+}
+
+```
+
+# Error
+
+Now that we have coded the MCL algorithm, we should make an effort to evaluate the overall quality of the solution. To accomplish this we'll compute the average distance between the particle and the robot. An ideal solution will result in an average distance smaller than a meter. We'll call the evaluation function.
+
+``` cpp
+
+int main()
+{
+    //Practice Interfacing with Robot Class
+    Robot myrobot;
+    myrobot.set_noise(5.0, 0.1, 5.0);
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    //cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    //cout << myrobot.read_sensors() << endl;
+
+    // Create a set of particles
+    int n = 1000;
+    Robot p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].set_noise(0.05, 0.05, 5.0);
+        //cout << p[i].show_pose() << endl;
+    }
+
+    //Re-initialize myrobot object and Initialize a measurment vector
+    myrobot = Robot();
+    vector<double> z;
+
+    //Iterating 50 times over the set of particles
+    int steps = 50;
+    for (int t = 0; t < steps; t++) {
+
+        //Move the robot and sense the environment afterwards
+        myrobot = myrobot.move(0.1, 5.0);
+        z = myrobot.sense();
+
+        // Simulate a robot motion for each of these particles
+        Robot p2[n];
+        for (int i = 0; i < n; i++) {
+            p2[i] = p[i].move(0.1, 5.0);
+            p[i] = p2[i];
+        }
+
+        //Generate particle weights depending on robot's measurement
+        double w[n];
+        for (int i = 0; i < n; i++) {
+            w[i] = p[i].measurement_prob(z);
+            //cout << w[i] << endl;
+        }
+
+        //Resample the particles with a sample probability proportional to the importance weight
+        Robot p3[n];
+        int index = gen_real_random() * n;
+        //cout << index << endl;
+        double beta = 0.0;
+        double mw = max(w, n);
+        //cout << mw;
+        for (int i = 0; i < n; i++) {
+            beta += gen_real_random() * 2.0 * mw;
+            while (beta > w[index]) {
+                beta -= w[index];
+                index = mod((index + 1), n);
+            }
+            p3[i] = p[index];
+        }
+        for (int k=0; k < n; k++) {
+            p[k] = p3[k];
+            //cout << p[k].show_pose() << endl;
+        }
+
+        //####   DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
+        
+        // TODO: Evaluate the error by priting it in this form:
+       cout << "Step = " << t << ", Evaluation = " << evaluation(myrobot, p, n) << endl;
+
+
+    } //End of Steps loop
+    return 0;
+}
+
+```
+Each number generated denotes the average distance between the particles and the robot in a world of 100mx100m. Notice how the number starts relatively high and converges to a smaller number after several iterations.
+
+# Graph 
+
+After evaluating we need to graph what we have coded to visualize the results. The ```visualization() ``` function takes in as input:
+
+1. The number of particles
+2. Robot's pose
+3. Particles at each time step
+
+# MCL LAB
+
+1. Clone Lab from GitHub:
+
+``` unix
+$ cd /home/workspace/
+$ git clone https://github.com/udacity/RoboND-MCL-Lab
+
+```
+
 
 
 

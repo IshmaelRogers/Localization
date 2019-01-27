@@ -453,6 +453,268 @@ double max(double arr[], int n)
 
 We start by learning how to instaniate the robot object from the robot class with a random position and orientation and change its intial positon and orientation. Next, we learn how to print the robot's pose, rotate and move it forward in the 2-D map. Finally we will print the distances from the robot to 8 landmarks. 
 
+1. Instantiating the robot 
+2. Change the position and orientation to x=10.0,  y =10.0, theta = 0 
+3. Print the position and orientation
+4. Rotate the robot by PI/2 and move forward by 10 (use M_PI) for the pi value
+5. Print robot's position and orinetaion 
+6. Print the distance from the robot toward the eight landmarks. 
+
+
+
+``` cpp
+
+int main()
+{
+    // Instantiating a robot object from the Robot class
+    Robot myrobot;
+
+    // Set robot new position to x=10.0, y=10.0 and orientation=0
+    // Fill in the position and orientation values in myrobot.set() function
+    myrobot.set(10, 10, 0);
+
+    // Printing out the new robot position and orientation
+    cout << myrobot.show_pose() << endl;
+
+    // Rotate the robot by PI/2.0 and then move him forward by 10.0
+    // Use M_PI for the pi value
+    myrobot.move(M_PI/2.0, 10);
+
+    // Print out the new robot position and orientation
+    cout << myrobot.show_pose() << endl;
+
+    // Printing the distance from the robot toward the eight landmarks
+    cout << myrobot.read_sensors() << endl;
+
+    return 0;
+}
+```
+
+Motion and Sensing 
+---
+
+The next part of our MCL code involves:
+
+1. Instantiating a robot objec
+2. Simulate motion update and sensor update 
+
+``` cpp
+
+int main()
+{
+    // Instantiate a robot object from the Robot class
+Robot myRobot;
+
+    // Set robot new position to x=30.0, y=50.0 and orientation=PI/2
+myRobot.set(30.0, 50.0, M_PI/2.0);
+
+    // Turn clockwise by PI/2 and move by 15 meters
+    
+myRobot.move(-M_PI/2.0, 15.0);
+
+
+    // Print the distance from the robot toward the eight landmarks
+cout << myRobot.read_sensors() << endl;
+
+    //  Turn clockwise by PI/2 and move by 10 meters
+myRobot.move(-M_PI/2.0,  10.0);
+
+    //  Print the distance from the robot toward the eight landmarks
+cout << myRobot.read_sensors() << endl;
+
+    return 0;
+}
+
+```
+
+# Noise 
+
+Let's alter the robot's **pose** and **measurement** values to **noisy** ones by adding the following noise values
+
+```Forward Noise ``` = 50
+
+```Turn Noise ``` = 0.1 
+
+```Sense Noise ``` = 5.0 
+
+
+
+```cpp
+
+int main()
+{
+    Robot myrobot;
+    // TODO: Simulate Noise
+     double Forward_Noise=5.0, Turn_Noise=0.1, Sense_Noise=5.0;
+    myrobot.set_noise(Forward_Noise, Turn_Noise, Sense_Noise);
+    
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    cout << myrobot.read_sensors() << endl;
+
+    return 0;
+}
+```
+# Particle Filter 
+
+The most important step is to generate particles.
+
+```cpp
+int main()
+{
+    //Practice Interfacing with Robot Class
+    Robot myrobot;
+    myrobot.set_noise(5.0, 0.1, 5.0);
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    //cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    //cout << myrobot.read_sensors() << endl;
+
+    //####   DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
+
+    // Instantiating 1000 Particles each with a random position and orientation
+    int n = 1000;
+    Robot p[n];
+    //TODO: Your job is to loop over the set of particles
+    for(int i=0; i < n; i++){
+        p[i].set_noise(0.05, 0.05, 5.0);// For each particle add noise: Forward_Noise=0.05, Turn_Noise=0.05, and Sense_Noise=5.0
+
+        cout << p[i].show_pose() << endl; //show the pose
+    }
+    
+    
+    
+    
+    return 0;
+}
+
+
+```
+
+Simulating Motion
+---
+
+Here we simulate motion  using C++
+
+``` cpp
+
+
+int main()
+{
+    //Practice Interfacing with Robot Class
+    Robot myrobot;
+    myrobot.set_noise(5.0, 0.1, 5.0);
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    //cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    //cout << myrobot.read_sensors() << endl;
+
+    // Create a set of particles
+    int n = 1000;
+    Robot p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].set_noise(0.05, 0.05, 5.0);
+        //cout << p[i].show_pose() << endl;
+    }
+
+    //####   DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
+
+    //Now, simulate motion for each particle
+    //TODO: Create a new particle set 'p2'
+    int m = 1000;
+    Robot p2[m];
+    
+    //TODO: Rotate each particle by 0.1 and move it forward by 5.0
+    
+    for (int j = 0; j < m; j++){
+        p2[j].move(0.1, 5.0);
+        p[j] = p2[j]; //Assign 'p2' to 'p' and print the particle poses, each on a single line
+        cout << p[j].show_pose() << endl;
+    }
+    
+
+    return 0;
+}
+
+```
+
+# Importance weight 
+
+So far we have generated particles and simulated motion. Now we will assign an importance weight to each one of the generated particles.
+
+```cpp
+int main()
+{
+    //Practice Interfacing with Robot Class
+    Robot myrobot;
+    myrobot.set_noise(5.0, 0.1, 5.0);
+    myrobot.set(30.0, 50.0, M_PI / 2.0);
+    myrobot.move(-M_PI / 2.0, 15.0);
+    //cout << myrobot.read_sensors() << endl;
+    myrobot.move(-M_PI / 2.0, 10.0);
+    //cout << myrobot.read_sensors() << endl;
+
+    // Create a set of particles
+    int n = 1000;
+    Robot p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].set_noise(0.05, 0.05, 5.0);
+        //cout << p[i].show_pose() << endl;
+    }
+
+    //Re-initialize myrobot object and Initialize a measurment vector
+    myrobot = Robot();
+    vector<double> z;
+
+    //Move the robot and sense the environment afterwards
+    myrobot = myrobot.move(0.1, 5.0);
+    z = myrobot.sense();
+
+    // Simulate a robot motion for each of these particles
+    Robot p2[n];
+    for (int i = 0; i < n; i++) {
+        p2[i] = p[i].move(0.1, 5.0);
+        p[i] = p2[i];
+    }
+
+    //####   DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
+
+    //TODO: Generate particle weights depending on robot's measurement
+    //TODO: Print particle weights, each on a single line
+  double w[n];
+  
+    for (int i = 0; i < n; i++) {
+        w[i] = p[i].measurement_prob(z);
+        cout << w[i] << endl;
+    }
+
+    return 0;
+}
+```
+# Resampling
+
+Sensor and update was successfully 
+
+given a set of n particle p1....pN, each particle has:
+
+1. A pose (x1,y1,theta1)...(xN,yN,thetaN)
+
+2. Weights w1....wn - denoting how the close the particle is from the robot position 
+
+3. We can sum all these weights and call the result, W then we computer the normalized weight (alpha) by dividing each weight by the normalizer, W 
+
+alpha is the probability of each particle being selected from the whole. The sun of all alphas must equal 1
+
+The resampler regorup all N normalized weights into a bag, Particle 2 and 3 have a large weight . By the end of the resampling process there will be N number of particle  as there were originally.
+
+At each iteration the resampling process is more likelyt to pick particles with large probablilites or alphas
+
 
 
 

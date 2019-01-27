@@ -987,17 +987,17 @@ $ git clone https://github.com/udacity/RoboND-MCL-Lab
 
 3. Compile the program:
 
-`` bash
+``` bash
 
 $ cd RoboND-MCL-Lab/
 $ rm -rf Images/*
 $ g++ main.cpp -o app -std=c++11 -I/usr/include/python2.7 - lpython2.7
 
-``
+```
 
 4. Run the program (make sure the ``images`` folder is empty before running)
 
-`` BASH
+`` bash
 
 ./app
 

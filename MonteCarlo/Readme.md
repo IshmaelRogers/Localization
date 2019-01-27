@@ -997,11 +997,11 @@ $ g++ main.cpp -o app -std=c++11 -I/usr/include/python2.7 -lpython2.7
 
 4. Run the program (make sure the ``images`` folder is empty before running)
 
-` bash
+``` bash
 
 ./app
 
-`
+```
 
 
 

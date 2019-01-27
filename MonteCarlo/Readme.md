@@ -934,7 +934,7 @@ After evaluating we need to graph what we have coded to visualize the results. T
 
 1. Clone Lab from GitHub:
 
-``` unix
+``` bash
 $ cd /home/workspace/
 $ git clone https://github.com/udacity/RoboND-MCL-Lab
 

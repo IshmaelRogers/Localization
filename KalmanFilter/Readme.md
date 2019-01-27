@@ -648,15 +648,18 @@ We will now code the multi-dimesnional Kalman Filter in C++. The code below uses
 
 #include <iostream>
 #include <math.h>
-#include <tuple>
+#include <tuple> 
 #include "Core" // Eigen Library
 #include "LU"   // Eigen Library
 
 using namespace std;
-using namespace Eigen;
+using namespace Eigen; 
 
-float measurements[3] = { 1, 2, 3 };
+float measurements[3] = { 1, 2, 3 }; // an array of measurement values 
 
+
+// define the kalman filter that takes in 7 parameters
+// returns a tuple of 2 Matrices that contain the state and the covariance matrix P
 tuple<MatrixXf, MatrixXf> kalman_filter(MatrixXf x, MatrixXf P, MatrixXf u, MatrixXf F, MatrixXf H, MatrixXf R, MatrixXf I)
 {
     for (int n = 0; n < sizeof(measurements) / sizeof(measurements[0]); n++) {
@@ -721,29 +724,30 @@ int main()
 
 ```
 
-# START HERE AND FINISH ATER PROJECT!
 
   # Extended Kalman Filter
   
   Kalman assumptions 
   ---
-  * Motion and measurement models are linear
-  * State space can be represebted by a unimodal Gaussian distribution
   
-  These assumptions only work for a primitive robot. Not ones that are non-linear and can move in a circle or follow a curve. 
+  When we use the Kalman filter, we make two very restrictive assumptions:
+  
+  1. Motion and measurement models are linear
+  2. State space can be represented by a unimodal Gaussian distribution
+  
+  These assumptions only work for a primitive robot, not ones that executes non-linear motions and can move in a circle or follow a curved path. 
   
   Why can't we use Kalman in non-linear robotics? 
   
-  Given a unimodal Gaussian distribution with a mean = (mu) and a variance = (sigma2)
+  Given a prior distribution, i.e. an unimodal Gaussian distribution with a mean = <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\mu" title="\mu" /></a> and variance = <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\sigma^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\sigma^2" title="\sigma^2" /></a>
   
-  When the distribution undergoes linear transformation (y = mx + b) the posterior distribution is a Gaussian with
+  When the distribution undergoes linear transformation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;y&space;=mx&plus;b" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;y&space;=mx&plus;b" title="y =mx+b" /></a>, the posterior distribution is a Gaussian with
   
-  1. mean = a x (mu) + b
-  2. Variance = a2(sigma2)
+  1. <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;mean&space;=&space;a\mu&space;&plus;&space;b" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;mean&space;=&space;a\mu&space;&plus;&space;b" title="mean = a\mu + b" /></a>
+  2. <a href="https://www.codecogs.com/eqnedit.php?latex=variance&space;=&space;a^2&space;&plus;&space;\sigma^\2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?variance&space;=&space;a^2&space;&plus;&space;\sigma^\2" title="variance = a^2 + \sigma^\2" /></a>
   
-  This is what can happen in a state prediction .
-  
-  NOTE: A linear transformation that takes in a Gaussian for an input will have a Gaussian for an ouput
+This is what can happen in a state prediction.  
+  NOTE: A linear transformation that takes in a Gaussian for an input will always have a Gaussian for an ouput.
   
   ![alt text][image19]
   
@@ -754,64 +758,62 @@ int main()
   
   As before the prior belief is a unimodal gaussian distributiion with 
   
-  mean = mu 
-  variance = sigma2 
+  mean =  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\mu" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\mu" title="\mu" /></a> and variance = <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\sigma^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\sigma^2" title="\sigma^2" /></a>
+  variance =  <a href="https://www.codecogs.com/eqnedit.php?latex=variance&space;=&space;a^2&space;&plus;&space;\sigma^\2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?variance&space;=&space;a^2&space;&plus;&space;\sigma^\2" title="variance = a^2 + \sigma^\2" /></a>
   
-  Now the function is nonlinear
+  In this case the function is nonlinear: 
   
-  f(x) = atan(x) 
+  <a href="https://www.codecogs.com/eqnedit.php?latex=f(x)=\arctan&space;(x)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f(x)=\arctan&space;(x)" title="f(x)=\arctan (x)" /></a>
   
-  The resulting graph is not a Gaussian distribution 
+  As shown below, the resulting graph is not a Gaussian distribution 
   
   ![alt text][image20] 
   
-  The distribution cannot be computer in closed form i.e with in a finite number of operations. To model this distribution, thousands of samples must be collected according to the prior distribution and passed through the function f(x) 
+  This distribution cannot be computed in closed form i.e with in a finite number of operations. In order to model this distribution, thousands of samples must be collected according to the prior distribution and passed through the function f(x) to create the desired posterior distribution. Doing this will make the filter more computationally intensive which is not what the filter is designed for. 
   
-  Doing this will make the filter more computationally intensive which is not what the filter is designed for. 
-  
-  If we examine the graph of f(x) more closesly we see that for very short intervals, the function may be approximated by a linear function. 
+
+However if we examine the graph of f(x) more closesly we see that for very short intervals, the function may be approximated by a linear function. 
   
   ![alt text][image21]
   
-  The linear estimate is only valid for a small section of the function but if its centered on the best estimate (the mean) and updated with every step, it can produce great results. 
+  The linear estimate is only valid for a small section of the function but, if its centered on the best estimate, (the mean) and updated with every step, it can produce accurate results. 
   
   * The mean can be updated by the nonlinear function-->  f(x) 
-  * The covariance must be updated by the linearization of the function f(x)
-  
-  
-  To calculate he local linear approximation, use the Taylor series. 
-  
-  Taylor series - a function can be represented by the sum of an infinite number of terms as represented by the following formula 
+  * The covariance must be updated by the *linearization* of the function f(x)
+ 
+ 
+  To calculate the local linear approximation, use the Taylor series. A function can be represented by the sum of an infinite number of terms as represented by the following formula 
   
   ![alt text][image22]
   
-  An approximation can be obtained by using just a few terms. 
-  
-  A linear approximation can be obtained by using the first two terms of the Taylor series 
+  An infinite number of terms is not neeed. An approximation can be obtained by using just a few terms. A linear approximation can be obtained by using the first two terms of the Taylor series 
   
  ![alt text][image23] 
  
- This linear approximation is center around the mean and used to update the covariance matrix of the prior state Gaussian. 
+ This linear approximation, which is centered around the mean, will be used to update the covariance matrix of the prior state Gaussian. Going back to the non-linear example and applying the lineariztion, we get: 
+ 
+ <a href="https://www.codecogs.com/eqnedit.php?latex=f(\mu)&plus;\frac{f'(\mu)}{1!}&space;(x-\mu)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f(\mu)&plus;\frac{f'(\mu)}{1!}&space;(x-\mu)" title="f(\mu)+\frac{f'(\mu)}{1!} (x-\mu)" /></a>
+ 
+ The Taylor series is simplified to a linear equation of the form y=ax + b and the transformation is applied to the prior. 
+ 
  
  EKF vs KF
  --
  
  1. EKF
  
- either the state transformation function, measurement function or both are nonlinear. These nonlinear functions update the mean but not the variance 
- 
- Locally linear approximations are calculate and used to update the variance
+ Either the state transformation function, measurement function or both are nonlinear. These nonlinear functions can update the mean but not the variance because it will result in a non-Gaussian distribution. To compensate, locally linear approximations are calculated and used to update the variance
  
  Summary
  ---
  ![alt text][image24]
   
+  
   Multi-dimensional Extended Kalman Filter
   ---
-   
-  When implementing the Extended Kalman Filter, non-linear motion or measurement functions need to be linearized to be able to update the variance
+   The only difference between implementing the Kalman Filter and the Extended Kalman Filter is the need to linearize a nonlinear motion or measurement function in order to update the variance. 
   
-  To do the for multiple dimensions, we use a multi-dimensional Taylor Series: 
+  To linearize functions of multiple dimensions, we use a multi-dimensional Taylor Series: 
   
   ![alt text][image25]
   
@@ -819,48 +821,43 @@ int main()
   
   ![alt text][image26]
   
-  The new term, *Df(a) is the Jacobian matrix and it holds the partial derivative terms for the multi-dimensiona equation
+  The new term, <a href="https://www.codecogs.com/eqnedit.php?latex=Df(a)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?Df(a)" title="Df(a)" /></a> is the Jacobian matrix and it holds the partial derivative terms for the multi-dimensiona equation
   
   ![alt text][image27]
   
-  The Jacobian is a matrix of partial derivative that tell us how each of the components of *f changes as we change the components of the state vector. 
+  The Jacobian is a matrix of partial derivative that tell us how each of the components of *f* changes as we change the components of the state vector. 
   
   ![alt text][image28]
   
-  The rows correspond to the dimension of the function, f
-  The columns relate to the dimension (state variable) of x
+  NOTE: The rows correspond to the dimension of the function, f. The columns relate to the dimension (state variable) of x
   
-  The first element of the matrix is the first dimensionn of the function derived with respect to the first dimension of x. 
+  The first element of the matrix is the first dimension of the function derived with respect to the first dimension of x. 
   
   The Jacobian is a generalization of the 1D case. In the 1D case, the Jacobian would only have the term df/dx.
   
   Example
   ---
   
-  We are tracking the x-y coordinate of an object. The state vecto is x, with the state variable x and y 
+  We are tracking the x-y coordinate of an object. The state vector is x, with the state variables x and y 
   
-  x = [x; y;]
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;x=\begin{bmatrix}&space;x\\&space;y&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;x=\begin{bmatrix}&space;x\\&space;y&space;\end{bmatrix}" title="x=\begin{bmatrix} x\\ y \end{bmatrix}" /></a>
   
-  Our sensors does not allow us to measure the x and y ccoordinate of the object directly. Our sensor measures the distance from the robot to the object, r, as well as the angle between r and the x-axis, theta.
+  Our sensors does not allow us to measure the x and y ccoordinate of the object directly. Our sensor measures the distance from the robot to the object, r, as well as the angle between r and the x-axis, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;\theta" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;\theta" title="\theta" /></a>.
   
-  z = [r; theta]
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;z=&space;\begin{bmatrix}&space;r\\&space;\theta&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;z=&space;\begin{bmatrix}&space;r\\&space;\theta&space;\end{bmatrix}" title="z= \begin{bmatrix} r\\ \theta \end{bmatrix}" /></a>
   
   
-  Our state is in Cartesian representation 
-  
-  Our measurement is in the polar representation 
-  
-  The measurement function maps the state to the observation, as so, 
+  Our state is in Cartesian representation of the world while our measurement is in polor representation. The measurement function maps the state to the observation, as so, 
   
   ![alt text][image29]
   
   NOTE: Our measurement function must map from Cartesian to Polar coordinates. 
   
-  The relationship between Cartesian and polar coordinates is nonlinear, therefore there is no matrix, H, that will successflly make this conversion. 
+  The relationship between Cartesian and polar coordinates is non-linear, therefore there is no matrix, H, that will successflly make this conversion. Therefore, instead off using the measurement residual equation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-H(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-H(x')" title="y=z-H(x')" /></a> , that mapping must be made with a dedicated function, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-H(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-H(x')" title="y=z-H(x')" /></a>
   
   ![alt text][image30]
   
-  Instead of using the measurement residual equation y  =  - Hxprime , the mapping must be made with a dedication function, h(x').
+  Instead of using the measurement residual equation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-h(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-h(x')" title="y=z-h(x')" /></a> , the mapping must be made with a dedication function, h(x').
   
   ![alt text][image31] 
   

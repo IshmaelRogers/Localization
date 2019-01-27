@@ -7,8 +7,8 @@
 [image6]: ./images/mclvsekf.png
 [image7]: ./images/ekf.png
 [image8]: ./images/resample_wheel.png
-[image9]: ./images/
-[image10]: ./images/
+[image9]: ./images/step0.png
+[image10]: ./images/step49.png
 [image11]: ./images/
 [image12]: ./images
 
@@ -1002,8 +1002,21 @@ $ g++ main.cpp -o app -std=c++11 -I/usr/include/python2.7 -lpython2.7
 ./app
 
 ```
+The results from this lab are discussed below:
+
+- The Green dots represent particles
+- The Yellow dots reprsent resample particles 
+- The Red dots represent land marks
+- The blue dot is the robots position
+
+The image below is a representation of the system that includes the robot, the particles, the resampled particles, and landmarks. The amount of particles are determined at the start of the localization. As the algorithm progresses, resampling occurs. Killing off particles whose weights are small; leaving only the particles with the heightest weights. What do the weights represent? 
+
+![alt text][image9]
 
 
+At Step # 49, the algorithm has eliminated most of the uncertain particles. 
+
+![alt text][image10]
 
 
 

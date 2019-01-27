@@ -853,7 +853,10 @@ However if we examine the graph of f(x) more closesly we see that for very short
   
   NOTE: Our measurement function must map from Cartesian to Polar coordinates. 
   
-  The relationship between Cartesian and polar coordinates is non-linear, therefore there is no matrix, H, that will successflly make this conversion. Therefore, instead off using the measurement residual equation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-H(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-H(x')" title="y=z-H(x')" /></a> , that mapping must be made with a dedicated function, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-H(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-H(x')" title="y=z-H(x')" /></a>
+  The relationship between Cartesian and polar coordinates is non-linear, therefore there is no matrix, H, that will successflly make this conversion. Therefore, instead off using the measurement residual equation <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;y=z-H(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;y=z-H(x')" title="y=z-H(x')" /></a> , that mapping must be made with a dedicated function, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{120}&space;h(x')" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{120}&space;h(x')" title="h(x')" /></a>
+  
+  
+ 
   
   ![alt text][image30]
   

@@ -597,39 +597,52 @@ The State Transisition Function is denoted *F and can be written as follows:
   Measurement Update
   --
   
-  Consider the example where we are tracking the position and velocity of a robot in the x-dimension, the robot was taking measurements of the location only (velocity is a hidden state variable)
+  Consider the example where we are tracking the position and velocity of a robot in the x-dimension, the robot was taking measurements of the location only because remember, velocity is a hidden state variable. The measurement fuction contains on a 1 and 0
   
-  The measurement function is very simple - a matrix that contain a one and a zero. 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;z&space;=\begin{bmatrix}&space;1&space;&&space;0&space;\end{bmatrix}\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;z&space;=\begin{bmatrix}&space;1&space;&&space;0&space;\end{bmatrix}\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" title="z =\begin{bmatrix} 1 & 0 \end{bmatrix}\begin{bmatrix} x\\ \dot{x} \end{bmatrix}" /></a>
   
-  z = [1 0] * [x; xdot]
-  
-  The Measurement Function, *H*
-  
-- demonstatres how to map the state to the observation, z
+  The matrix <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\begin{bmatrix}&space;1&space;&&space;0&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\begin{bmatrix}&space;1&space;&&space;0&space;\end{bmatrix}" title="\begin{bmatrix} 1 & 0 \end{bmatrix}" /></a> is the Measurement Function, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;H" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;H" title="H" /></a> . It demonstatres how to map the state to the observation, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;z" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;z" title="z" /></a>
 
-Formulas for measurement update step 
+Formulas for measurement update step
+--
 
-* measurement residual, *y - the difference between the measurement and the expected measurement based on the prediction
-i.e a comparision of where the measurement tells us we are vs. where we think we are. 
+*measurement residual*, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;y" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;y" title="y" /></a> 
 
-1. y = z - H * xprime
+This formula represents the difference between the measurement and the expected measurement based on the prediction i.e a comparision of where the measurement tells us we are vs. where we think we are. 
 
-Consider the measurement noise, R. This formula maps the state prediction covariance into the measurement space and adds the measurement noise. 
+1. <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;y&space;=&space;z&space;-&space;Hx'" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;y&space;=&space;z&space;-&space;Hx'" title="y = z - Hx'" /></a>
 
-NOTEL The result "S", will be used in a coming equation to calulate the Kalman Gain
+*measurement noise* <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;R" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;R" title="R" /></a>. 
 
-2. S = HPrimeH_transpose + R
+This formula maps the state prediction covariance into the measurement space and adds the measurement noise. 
+
+NOTE: The result "S", will be used in a coming equation to calulate the Kalman Gain
+
+2. <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;S&space;=&space;HP'H^T&space;&plus;&space;R" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;S&space;=&space;HP'H^T&space;&plus;&space;R" title="S = HP'H^T + R" /></a>
 
 Kalman Gain
 ---
 
-- determines how much weight should be placed on the state prediction and how much on the measurement update. It is an averaging factor that changes depending on the uncertainity of the state prediction and measurement update.
+The Kalman Gain determines how much weight should be placed on the state prediction and how much weight on the measurement update. It is an averaging factor that evaluates which of the measurement update or state prediction should be trusted more based on the measurement noise and the process noise.
 
-K = Pprime * H_transpose * S^-1 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;K&space;=&space;P'H^TS^{-1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;K&space;=&space;P'H^TS^{-1}" title="K = P'H^TS^{-1}" /></a>
 
-x = xprime + Ky
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;x&space;=&space;x'&space;&plus;&space;Ky" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;x&space;=&space;x'&space;&plus;&space;Ky" title="x = x' + Ky" /></a>
+
+The last step in the Kalman Filter is to update the new state's covariance using the Kalman Gain
+
+Covariance calculation: 
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;P&space;=(I&space;-&space;KH)P'" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;P&space;=(I&space;-&space;KH)P'" title="P =(I - KH)P'" /></a>
+
+The Kalman Filter can successfully recover from incaccurate initial estimates, but it is very important to estimte the noise parameters, Q and R as accurately as possible because they are used to determine which of the estimate or the measurement to believe more.
+
+
 
 # PROGRAMMING THE MULTI-DIMENSIONAL KALMAN FLITER
+
+We will now code the multi-dimesnional Kalman Filter in C++. The code below uses the C++ ``eigen`` library to define matrices and easily compute their inverse and transpose. Here is a link to the full ``eigen`` library documentation. [click here](https://eigen.tuxfamily.org/dox/group__QuickRefPage.html)
+
 
 ``` cpp
 

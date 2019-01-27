@@ -987,7 +987,7 @@ $ git clone https://github.com/udacity/RoboND-MCL-Lab
 
 3. Compile the program:
 
-`` BASH 
+`` bash
 
 $ cd RoboND-MCL-Lab/
 $ rm -rf Images/*

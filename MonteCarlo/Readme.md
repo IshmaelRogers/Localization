@@ -3,7 +3,9 @@
 [image2]: ./images/compare.png
 [image3]: ./images/map.png
 [image4]: ./images/pose.png
-[image5]:
+[image5]: ./images/mcl.png
+[image6]: ./images/mclvsekf.png
+[image7]: ./images/ekf.png
 
 
 
@@ -37,6 +39,7 @@ Full comparison
 
 # Particle Filters
 
+Particle filters can be used for localizing autonomous robots. They can equip robots with the tool of probability, allowing them to represent their belief about their current state with random *samples. Furthermore, it can be used to estimate non-Gaussian, nolinear processes. 
 In the map below the robot does not know where it is located in the map. Since the initial state is unknown, the robot tries to estimate its pose by solving the Global localization problem. 
 
 ![alt text][image3]
@@ -102,6 +105,87 @@ P(POS|DOOR): The belief or the probability of the robot being at the actual posi
 
 
 ```
+The solution to this problem is implemented in C++ 
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	//Given P(POS), P(DOOR|POS) and P(DOOR|¬POS)
+	double a = 0.0002 ; //P(POS) = 0.002
+	double b = 0.6    ; //P(DOOR|POS) = 0.6
+	double c = 0.05   ; //P(DOOR|¬POS) = 0.05
+	
+	//TODO: Compute P(¬POS) and P(POS|DOOR)
+	double d = 1-a ;                  //P(¬POS)  
+	double e =  (b*a)/((a*b)+(d*c)) ; //P(POS|DOOR)
+	
+	//Print Result
+	cout << "P(POS|DOOR)= " <<    e    << endl;
+	
+	return 0;
+}
+```
+The belief is P(POS|DOOR)= 0.00239473
+
+# The MCL Algorthim
+
+The Monte Carlo Localization Algorithm is comprosed of two main sections that contain for loops:
+
+The first section is the motion and sensor update
+The section section is the resampling process.
+
+Given a map of an environment the goal of the MCL is to determine the robot's pose represented by the belief. At each iteration, the algortihm takes the previous belief, the actuation command and the sensor measurements as input.
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=MCL(X_t-1,&space;u_t,&space;z_t)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?MCL(X_t-1,&space;u_t,&space;z_t)" title="MCL(X_t-1, u_t, z_t)" /></a>
+
+In the beginning the blief is obtained by randomly generating m particles. The hypothetical state is computed whenever the robot moves.Next, the particles weight is computed after using the latest sensor measurements. Now, motion and measurment are both beign added to the previous state.
+
+Resampling 
+Samples with the high probability survive and are re-spawned in the next iteration while the others die. Then the algorithm outputs it belief. Starting the cylce over again from new measurements. 
+
+![alt text][image5]
+
+Orientation matters in the resampling stage since prefiction is diferent for different orientations.
+
+
+
+Steps of the MCL algorithm
+---
+
+1. Previous Belief
+2. Motion Update
+3. Measurement Update
+4. Resampling 
+5. New Belief
+
+MCL vs EKF in Action 
+
+1. MCL 
+
+![alt text][image6] 
+
+At time:
+
+t=1, Particles are drawn randomly and uniformly over the entire pose space.
+t=2, Measurement is updated and an importance weight is assigned to each particle.
+t=3, Motion is updated and a new particle set with uniform weights and high number of particles around the three most likely places is obtained in resampling.
+t=4, Measurement assigns non-uniform weight to the particle set.
+t=5, Motion is updated and a new resampling step is about to start.
+
+
+2. EKF 
+
+![alt text][image7] 
+
+At time:
+
+t=1, Initial belief represented by a Gaussian distribution around the first door.
+t=2, Motion is updated and the new belief is represented by a shifted Gaussian of increased weight.
+t=3, Measurement is updated and the robot is more certain of its location. The new posterior is represented by a Gaussian with a small variance.
+t=4, Motion is updated and the uncertainty increases.
 
 
 The Key Idea in MCL
@@ -149,7 +233,7 @@ Mixture-MCL combines:
 
 Mixture-MCL works well if the sample set size is small (i.e 50 samples) it recovers faster from robot kidnapping than any previous variation of MCL. It also works well when sensor models are too narrow for regular MCL. 
 
-Mixtrue-MCL is uniforly superior to regular MCL and particle filters. 
+Mixtrue-MCL is uniformly superior to regular MCL and particle filters. 
 
 Key disadvantage- a sensor model that permits fast sampling of poses is required! Model is not always able to be trivally obtained. 
 
@@ -158,21 +242,220 @@ Overcoming the disadvantages - sufficient use of statistics and density trees to
 Further, during a pre-procesing phase sensor readings are mappd into a set of discriminationg features and potential robot poses are then drawn randomly using tree generated. After the tree is made dual sampling can be done very efficiently. 
 
 
+# Programming MCL in C++ 
+
+We will program the MCL in the following sections:
+
+1. Motion and sensing
+2. Noise 
+3. Particle Filters 
+4. Importance weight
+5. Error
+6. Graphing 
+
+# Robot Class 
+
+``cpp
+//#include "src/matplotlibcpp.h"//Graph Library
+#include <iostream>
+#include <string>
+#include <math.h>
+#include <vector>
+#include <stdexcept> // throw errors
+#include <random> //C++ 11 Random Numbers
+
+//namespace plt = matplotlibcpp;
+using namespace std;
+
+// Landmarks
+double landmarks[8][2] = { { 20.0, 20.0 }, { 20.0, 80.0 }, { 20.0, 50.0 },
+    { 50.0, 20.0 }, { 50.0, 80.0 }, { 80.0, 80.0 },
+    { 80.0, 20.0 }, { 80.0, 50.0 } };
+
+// Map size in meters
+double world_size = 100.0;
+
+// Random Generators
+random_device rd;
+mt19937 gen(rd());
+
+// Global Functions
+double mod(double first_term, double second_term);
+double gen_real_random();
+
+class Robot {
+public:
+    Robot()
+    {
+        // Constructor
+        x = gen_real_random() * world_size; // robot's x coordinate
+        y = gen_real_random() * world_size; // robot's y coordinate
+        orient = gen_real_random() * 2.0 * M_PI; // robot's orientation
+
+        forward_noise = 0.0; //noise of the forward movement
+        turn_noise = 0.0; //noise of the turn
+        sense_noise = 0.0; //noise of the sensing
+    }
+
+    void set(double new_x, double new_y, double new_orient)
+    {
+        // Set robot new position and orientation
+        if (new_x < 0 || new_x >= world_size)
+            throw std::invalid_argument("X coordinate out of bound");
+        if (new_y < 0 || new_y >= world_size)
+            throw std::invalid_argument("Y coordinate out of bound");
+        if (new_orient < 0 || new_orient >= 2 * M_PI)
+            throw std::invalid_argument("Orientation must be in [0..2pi]");
+
+        x = new_x;
+        y = new_y;
+        orient = new_orient;
+    }
+
+    void set_noise(double new_forward_noise, double new_turn_noise, double new_sense_noise)
+    {
+        // Simulate noise, often useful in particle filters
+        forward_noise = new_forward_noise;
+        turn_noise = new_turn_noise;
+        sense_noise = new_sense_noise;
+    }
+
+    vector<double> sense()
+    {
+        // Measure the distances from the robot toward the landmarks
+        vector<double> z(sizeof(landmarks) / sizeof(landmarks[0]));
+        double dist;
+
+        for (int i = 0; i < sizeof(landmarks) / sizeof(landmarks[0]); i++) {
+            dist = sqrt(pow((x - landmarks[i][0]), 2) + pow((y - landmarks[i][1]), 2));
+            dist += gen_gauss_random(0.0, sense_noise);
+            z[i] = dist;
+        }
+        return z;
+    }
+
+    Robot move(double turn, double forward)
+    {
+        if (forward < 0)
+            throw std::invalid_argument("Robot cannot move backward");
+
+        // turn, and add randomness to the turning command
+        orient = orient + turn + gen_gauss_random(0.0, turn_noise);
+        orient = mod(orient, 2 * M_PI);
+
+        // move, and add randomness to the motion command
+        double dist = forward + gen_gauss_random(0.0, forward_noise);
+        x = x + (cos(orient) * dist);
+        y = y + (sin(orient) * dist);
+
+        // cyclic truncate
+        x = mod(x, world_size);
+        y = mod(y, world_size);
+
+        // set particle
+        Robot res;
+        res.set(x, y, orient);
+        res.set_noise(forward_noise, turn_noise, sense_noise);
+
+        return res;
+    }
+
+    string show_pose()
+    {
+        // Returns the robot current position and orientation in a string format
+        return "[x=" + to_string(x) + " y=" + to_string(y) + " orient=" + to_string(orient) + "]";
+    }
+
+    string read_sensors()
+    {
+        // Returns all the distances from the robot toward the landmarks
+        vector<double> z = sense();
+        string readings = "[";
+        for (int i = 0; i < z.size(); i++) {
+            readings += to_string(z[i]) + " ";
+        }
+        readings[readings.size() - 1] = ']';
+
+        return readings;
+    }
+
+    double measurement_prob(vector<double> measurement)
+    {
+        // Calculates how likely a measurement should be
+        double prob = 1.0;
+        double dist;
+
+        for (int i = 0; i < sizeof(landmarks) / sizeof(landmarks[0]); i++) {
+            dist = sqrt(pow((x - landmarks[i][0]), 2) + pow((y - landmarks[i][1]), 2));
+            prob *= gaussian(dist, sense_noise, measurement[i]);
+        }
+
+        return prob;
+    }
+
+    double x, y, orient; //robot poses
+    double forward_noise, turn_noise, sense_noise; //robot noises
+
+private:
+    double gen_gauss_random(double mean, double variance)
+    {
+        // Gaussian random
+        normal_distribution<double> gauss_dist(mean, variance);
+        return gauss_dist(gen);
+    }
+
+    double gaussian(double mu, double sigma, double x)
+    {
+        // Probability of x for 1-dim Gaussian with mean mu and var. sigma
+        return exp(-(pow((mu - x), 2)) / (pow(sigma, 2)) / 2.0) / sqrt(2.0 * M_PI * (pow(sigma, 2)));
+    }
+};
+
+// Functions
+double gen_real_random()
+{
+    // Generate real random between 0 and 1
+    uniform_real_distribution<double> real_dist(0.0, 1.0); //Real
+    return real_dist(gen);
+}
+
+double mod(double first_term, double second_term)
+{
+    // Compute the modulus
+    return first_term - (second_term)*floor(first_term / (second_term));
+}
+
+double evaluation(Robot r, Robot p[], int n)
+{
+    //Calculate the mean error of the system
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
+        //the second part is because of world's cyclicity
+        double dx = mod((p[i].x - r.x + (world_size / 2.0)), world_size) - (world_size / 2.0);
+        double dy = mod((p[i].y - r.y + (world_size / 2.0)), world_size) - (world_size / 2.0);
+        double err = sqrt(pow(dx, 2) + pow(dy, 2));
+        sum += err;
+    }
+    return sum / n;
+}
+double max(double arr[], int n)
+{
+    // Identify the max element in an array
+    double max = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr[i] > max)
+            max = arr[i];
+    }
+    return max;
+}
+``
+# Interaction 1
+
+We start by learning how to instaniate the robot object from the robot class with a random position and orientation and change its intial positon and orientation. Next, we learn how to print the robot's pose, rotate and move it forward in the 2-D map. Finally we will print the distances from the robot to 8 landmarks. 
 
 
 
 
-MCL vs. EKF 
-
-# Partical Filters 
-
-Intro: Particle filters can be used for localizing autonomous robots. They can equip robots with the tool of probability, allowing them to represent their belief about their current state with random *samples. Furthermore, it can be used to estimate non-Gaussian, nolinear processes. 
 
 
 
-
-
-
-Bayes Filtering
-Pseudo Code
-MCL in action

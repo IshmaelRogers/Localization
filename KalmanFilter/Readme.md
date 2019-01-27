@@ -543,58 +543,56 @@ Knowing the relationship between the hidden variable and observable variable is 
   If the new measurement suggests a location of <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=50" title="x=50" /></a> then, we apply the measurement update to the prior, the posterior will be very small and centered around <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=50" title="x=50" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}=50" title="\dot{x}=50" /></a>4. 
   
   ![alt text][image18]
-  
-  REVIEW!
-  
+ 
+ The results are the exact same as in the 1-D case, the Posterior Belief is just the weighted sum of the Prior Belief and the Measurement. As expected, it is more confident than either of the 2. The relationship between the two dimesnions narrows down the Posterior for the a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}" title="\dot{x}" /></a> axis 
+ 
+ If the robot moved from, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=35" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=35" title="x=35" /></a> to <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x=50" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x=50" title="x=50" /></a> in 1 second, speed can be calculated. Two iterations of the Kalman filter cycle is enough to infer the robot's velocity. If we continue iterating through the measurement update and state prediction step, the robot's internal state with be updated to keep it aligned with where it is in the real world. 
+ 
   # Design of Multidimensional KF
   
-  State prediction 
-  ---
+  Linear algebra will allow us to easily work with multi-dimensional problems. We'll start with the state prediction in linear algebra form. 
   
   State Transition
   --
+  State transition function advances the state from time <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;t" title="t" /></a> to <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;t&plus;1" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;t&plus;1" title="t+1" /></a> .The function is the relationship between the robot's position, x, and veloctity, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}" title="\dot{x}" /></a>. Let's assume that the robot's velocity is not changing. 
   
-  - the state transition function advances the state from time _t_ to time t+ 1 --> the relationship between the robot's position, x, and veloctity, x_dot.
+ <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;{x}'=x&space;&plus;&space;\dot{x}\Delta&space;t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;{x}'=x&space;&plus;&space;\dot{x}\Delta&space;t" title="{x}'=x + \dot{x}\Delta t" /></a>
   
-  NOTE: We are assuming that the robot's velocity is not changing here.
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\dot{x}{}'=\dot{x}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\dot{x}{}'=\dot{x}" title="\dot{x}{}'=\dot{x}" /></a>
   
-  xprime = x + delta_t*xdot
-  
-  xdot_prime = xdot
+  In matrix form the left side of the equation represents the posterior state . On the right is the state transition function and the prior state. The equation show how the state changes over the time period, <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\Delta&space;t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\Delta&space;t" title="\Delta t" /></a>
   
   
- In matrix form 
+  NOTE: We are only working with the means for now. A note will appear informing you when the covariance matrix discussion is near. 
  
- [x   ]' = [1 delta_t; 0   1] * [x;, xdot]
- [xdot]
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}'&space;=&space;\begin{bmatrix}&space;1&space;&&space;\Delta&space;t&space;\\&space;1&space;&&space;1&space;\end{bmatrix}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}'&space;=&space;\begin{bmatrix}&space;1&space;&&space;\Delta&space;t&space;\\&space;1&space;&&space;1&space;\end{bmatrix}&space;\begin{bmatrix}&space;x\\&space;\dot{x}&space;\end{bmatrix}" title="\begin{bmatrix} x\\ \dot{x} \end{bmatrix}' = \begin{bmatrix} 1 & \Delta t \\ 1 & 1 \end{bmatrix} \begin{bmatrix} x\\ \dot{x} \end{bmatrix}" /></a>
+
+The State Transisition Function is denoted *F and can be written as follows:
+  
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x'=Fx" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x'=Fx" title="x'=Fx" /></a>
+  
+  To account for real world uncertainities the equation should also account for process noise. Therefore we introduce *noise* as a term in the above equation: 
+  
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;x'=Fx&space;&plus;noise" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;x'=Fx&space;&plus;noise" title="x'=Fx +noise" /></a>
+  
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;noise&space;\sim&space;N(0,Q)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;noise&space;\sim&space;N(0,Q)" title="noise \sim N(0,Q)" /></a>
   
   
-  The State Transisition Function is denoted *F
+  We move our discussion to the covariance. In that mathematics we use <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;\Sigma" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;\Sigma" title="\Sigma" /></a> to represent the covariance of a Gaussian distribution. When solving the localization problem, it is common to use *P* to represent the state covariance.
   
-  xprime = F * *x
-  
-  
-  NOTE The above equation can be expanded to account for process noise with a term in the equation:
-  
-  xprime = F * *x + *noise 
-  
-  *nois ~ N(0,Q)
-  
-  NOTE: *P* represents the state covariance in localization
-  
-  Multiplying the state, x by *F*, the the covariance wll be affected by the square of F
+  If you multiply the state, x by *F*, then the covariance will be affected by the square of F. In matrix form:
   
   In matrix form:
   
-  Pprime = F(times)P(times)F_transpose
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;P'&space;=&space;FPF^T" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;P'&space;=&space;FPF^T" title="P' = FPF^T" /></a>
   
-  To calculate posterior covariance, the prior covariance is multiplied by the state transition function square, and Q added as an increase of uncertainity due to process noise. 
+  The equation should be affected by more than just the state transition function. Additional uncertainity may arise from the prediction itself. 
   
-  NOTE: Q can account for a robot slowing down unexpectedly, or being drawn off course by an external influence 
+  To calculate posterior covariance, the prior covariance is multiplied by the state transition function squared, and Q is added as an increase of uncertainity due to process noise. Q can account for a robot slowing down unexpectedly, or being drawn off course by an external influence. 
   
-  Pprime = FPF_transpose + Q 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{300}&space;P'&space;=&space;FPF^T&space;&plus;Q" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{300}&space;P'&space;=&space;FPF^T&space;&plus;Q" title="P' = FPF^T +Q" /></a>
   
-  NOTE: The mean and covariance has been update as part of the state prediction
+  At this point we have updated the mean and the covariance as part of the state prediction. 
   
   Measurement Update
   --
@@ -620,7 +618,7 @@ Consider the measurement noise, R. This formula maps the state prediction covari
 
 NOTEL The result "S", will be used in a coming equation to calulate the Kalman Gain
 
-2. S = HPprimeH_transpose + R
+2. S = HPrimeH_transpose + R
 
 Kalman Gain
 ---

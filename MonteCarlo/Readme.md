@@ -255,7 +255,7 @@ We will program the MCL in the following sections:
 
 # Robot Class 
 
-``cpp
+``` cpp
 //#include "src/matplotlibcpp.h"//Graph Library
 #include <iostream>
 #include <string>
@@ -448,7 +448,7 @@ double max(double arr[], int n)
     }
     return max;
 }
-``
+```
 # Interaction 1
 
 We start by learning how to instaniate the robot object from the robot class with a random position and orientation and change its intial positon and orientation. Next, we learn how to print the robot's pose, rotate and move it forward in the 2-D map. Finally we will print the distances from the robot to 8 landmarks. 

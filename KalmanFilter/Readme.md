@@ -115,28 +115,54 @@ However, in the real world, robots may encounter complexities that result in the
    
    It should be clear that the sensor data plays an important role in the localization problem. As discussed previously, real world sensors contain a lot of noise and must be filtered out in order to be useful for any localization problem. 
    
-   The robots internal belief about its state is represented by a gaussian disribution. The shape of the bell curve determines how "confident" our robot is about their current state. In an environment with only a few enviornmental factors, movement commands are precise and the shape of the Gaussian distribution is narrow (the robot is confident). Conversely, evnironments that contain many environmental factors (as is the case with a rescue mission robot), the Gaussian distribution is much wider; therefore the robot is less certain about its current state. 
+   
+   
+The robots internal belief about its state is represented by a *gaussian disribution*. The shape of the bell curve determines how "confident" our robot is about their current state. 
+   
+   
+   
+In an environment with only a few environmental factors, movement commands are precise and the shape of the Gaussian distribution is narrow (the robot is confident). 
+   
+   
+Conversely, evnironments that contain many environmental factors (as is the case with a rescue mission robot), the Gaussian distribution is much wider; therefore the robot is less certain about its current state. 
+
   
    Advantage
    ---
    
-   Movement and Sensory measurements are uncertain, the Kalman Filter takes in account the uncertainity of each sensor's measurement to help the robot better sense its own state. This estimatation is fast; happening after only a few sensor measurements. 
+   Movement and Sensory measurements are highly uncertain, the Kalman Filter takes in account the uncertainity of each sensor's measurement to help the robot better percieve its own state. This estimatation is fast; happening after only a few sensor measurements. 
    
-   STEPS
-   ---
+  STEPS
+  ---
    
-   To begin the Kalman cycle, the system generates an intitial guess about its state and takes in account of expected uncertainity. 
+To begin the Kalman cycle, the system generates an intitial guess about its state and takes in account of expected uncertainity. 
    
-   Sensor Fusion - is the process in which the Kalman filter is used to calculate an accurate estimate of the system's state using data from multiple sensors. 
+   # Sensor Fusion
+ 
+The process in which the Kalman filter is used to calculate an accurate estimate of the system's state using data from multiple sensors. 
    
   # 1D Gaussian
   
-   It is worth remphasizing the basis of the Kalman Filter. At the core of this probablisitic algorithm is the Gaussian distribution also known as a bell curve. It can be used to represent the robot's certainity about its on pose relative to the world. For example if Hexpod Zero was commanded to execute 1 motion, the system's final location can be represented as a Gaussian, where the overall shape can illustrate how certain the robot is. Considering the real world assumption, the exact location is not certain, however the level of uncertainity is bounded. 
+  
+  
+It is worth remphasizing the basis of the Kalman Filter. At the core of this probablisitic algorithm is the Gaussian Distribution also known as a *bell curve.*
+
+
+The Bell Curve
+---
+
+Can be used to represent the robot's certainity about its on pose relative to the world. 
+
+
+For example if Hexpod Zero was commanded to execute 1 motion, the system's final location can be represented as a Gaussian, where the overall shape can illustrate how certain the robot is. Considering the real world assumption, the exact location is not certain, however the level of uncertainity is bounded. 
+
+
    
-   The role of a Kalman Filter
-   ---
+ The role of a Kalman Filter
+ ---
    
-   After a movement command or a measurement update, the KF outputs a *unimoda* Gaussian distribution. This is considered its best guess at the true value of a parameter
+   
+After a movement command or a measurement update, the KF outputs a *unimodal* Gaussian distribution. This is considered its best guess at the true value of a parameter
    
   NOTE: Unimodal - implies a single peak present in the distribution.  
    
